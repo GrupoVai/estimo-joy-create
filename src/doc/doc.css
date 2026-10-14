@@ -1,0 +1,90 @@
+/* Fontes do documento (auto-hospedadas via @fontsource) */
+@import "@fontsource/montserrat/300.css";
+@import "@fontsource/montserrat/400.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/montserrat/400-italic.css";
+@import "@fontsource/montserrat/700-italic.css";
+@import "@fontsource/julius-sans-one/400.css";
+@import "@fontsource/questrial/400.css";
+@import "@fontsource/cormorant-garamond/700.css";
+
+/* Página A4 (595.5 × 842.25 pt) — ver layout.tsx */
+.doc-page {
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  break-after: page;
+  page-break-after: always;
+}
+.doc-page img {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.doc-page:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+/* Campo editável inline (só no editor) */
+.doc-e {
+  outline: none;
+  border-radius: 1pt;
+  cursor: text;
+  transition: box-shadow 0.12s;
+}
+.doc-e:hover {
+  box-shadow: 0 0 0 1pt rgba(37, 99, 235, 0.45);
+}
+.doc-e:focus {
+  box-shadow: 0 0 0 1.5pt rgba(37, 99, 235, 0.9);
+  background: rgba(37, 99, 235, 0.06);
+}
+.doc-e-over {
+  box-shadow: 0 0 0 1pt rgba(217, 119, 6, 0.55);
+}
+.doc-e-over::after {
+  content: "";
+  position: absolute;
+  width: 4pt;
+  height: 4pt;
+  margin-left: 1pt;
+  margin-top: -2pt;
+  border-radius: 50%;
+  background: #d97706;
+}
+
+/* Impressão: cada página = uma folha A4 sem margem */
+@page {
+  size: 595.5pt 842.25pt; /* página do Canva (A4 + 0,2 pt) */
+  margin: 0;
+}
+@media print {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .doc-print-only {
+    display: block;
+  }
+  .doc-page {
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+  .doc-e {
+    box-shadow: none !important;
+    background: none !important;
+  }
+  .doc-e-over {
+    box-shadow: none !important;
+  }
+  .doc-e-over::after {
+    display: none;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
