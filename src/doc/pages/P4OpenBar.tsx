@@ -174,8 +174,8 @@ export function P4OpenBar() {
         <E k="ob.c0.gin" def="GIN" />
       </Txt>
       <Txt
-        x={50.9}
-        w={73.2}
+        x={48.5}
+        w={78}
         align="center"
         y={453.16}
         size={10.18}

@@ -30,6 +30,9 @@
 /* Campo editável inline (só no editor) */
 .doc-e {
   outline: none;
+  /* o Chrome aplica overflow-wrap:break-word em contenteditable; mantém a quebra igual à impressão */
+  overflow-wrap: normal;
+  -webkit-line-break: auto;
   border-radius: 1pt;
   cursor: text;
   transition: box-shadow 0.12s;
