@@ -36,6 +36,10 @@ src/components/editor/  painel, editor, tabela de preços
 - **Limitado**: 150/200 unidades × R$16/17/18/20.
 - Todo valor calculado pode ser sobrescrito no preview (marcado com ponto laranja). "Ajuste geral" aplica
   um desconto/acréscimo em todas as opções sem aparecer no PDF.
+- Painel **Coquetéis (página 4)**: regime, faixa da planilha, horas, acréscimo %, unidades, R$/unidade e os
+  preços de cada opção são sugeridos pela tabela e editáveis (campos em amarelo = editados à mão; ↺ volta ao
+  automático; "Preços automáticos" zera tudo). Guardado em `Proposta.precos` (parâmetros) e
+  `Proposta.overrides` (`ob.preco.N`, `lim.total.OP.F`).
 
 ## Desenvolvimento
 

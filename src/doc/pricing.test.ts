@@ -92,3 +92,53 @@ describe("formatação", () => {
     expect(parseBR("")).toBeNull();
   });
 });
+
+describe("parâmetros manuais (painel 'Coquetéis página 4')", () => {
+  it("força o regime independente do nº de convidados", () => {
+    const p = { ...novaProposta(cfg), convidados: 30 };
+    expect(calcular(p, cfg).regime).toBe("limitado");
+    expect(calcular({ ...p, precos: { ...p.precos, regime: "openbar" } }, cfg).regime).toBe(
+      "openbar",
+    );
+  });
+
+  it("faixa e acréscimo manuais substituem os automáticos", () => {
+    const p = { ...novaProposta(cfg), convidados: 90, duracao: 4, data: "24/07/2027" };
+    const auto = calcularOpenBar(p, cfg);
+    expect(auto.faixa).toBe(100);
+    expect(auto.acrescimoPct).toBe(10);
+    const manual = calcularOpenBar(
+      { ...p, precos: { ...p.precos, faixaOpenBar: 150, acrescimoPct: 0 } },
+      cfg,
+    );
+    expect(manual.faixa).toBe(150);
+    expect(manual.acrescimoPct).toBe(0);
+    const row = cfg.openBar.faixas.find((f) => f.convidados === 150)!;
+    expect(manual.valores[0]).toBeCloseTo(150 * row.pessoa[0], 6);
+    // aviso de data só vale quando o acréscimo é automático
+    const semData = calcularOpenBar({ ...p, data: "" }, cfg);
+    expect(semData.avisos.length).toBeGreaterThan(0);
+    expect(
+      calcularOpenBar({ ...p, data: "", precos: { ...p.precos, acrescimoPct: 5 } }, cfg).avisos,
+    ).toEqual([]);
+  });
+
+  it("unidades e R$/unidade manuais no limitado", () => {
+    const p = { ...novaProposta(cfg), convidados: 30 };
+    const c = calcular(
+      {
+        ...p,
+        precos: {
+          ...p.precos,
+          limitadoUnidades: [100, null],
+          limitadoUnitarios: [null, 20, null, null],
+        },
+      },
+      cfg,
+    );
+    expect(c.limitado.unidades).toEqual([100, 200]);
+    expect(c.limitado.unitarios).toEqual([16, 20, 18, 20]);
+    expect(c.limitado.totais[0]).toEqual([1600, 2000, 1800, 2000]);
+    expect(c.limitado.totais[1]).toEqual([3200, 4000, 3600, 4000]);
+  });
+});

@@ -98,6 +98,7 @@ export function Editor() {
             p={p}
             cfg={cfg}
             setField={setField}
+            setOverride={setOverride}
             setBebidas={setBebidas}
             limparOverrides={limparOverrides}
           />

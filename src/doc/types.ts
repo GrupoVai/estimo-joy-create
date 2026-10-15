@@ -26,6 +26,19 @@ export interface Ajuste {
   valor: number;
 }
 
+export interface PrecosManuais {
+  /** força o regime da página 4 (null = pelo nº de convidados) */
+  regime: "limitado" | "openbar" | null;
+  /** aba da planilha (convidados) usada no open bar */
+  faixaOpenBar: number | null;
+  /** acréscimo % sobre a base 2026 */
+  acrescimoPct: number | null;
+  /** unidades das opções 1 e 2 do limitado */
+  limitadoUnidades: [number | null, number | null];
+  /** R$/unidade por faixa de bebida do limitado */
+  limitadoUnitarios: [number | null, number | null, number | null, number | null];
+}
+
 export interface Proposta {
   nome: string;
   evento: string; // valor do dropdown (ex.: "Formatura", "Casamento", "Outras festas")
@@ -44,6 +57,8 @@ export interface Proposta {
   cafeteria: { ativo: boolean; pacote: number; unitario: number };
   servicos: Record<ServicoId, boolean>;
   ajuste: Ajuste | null;
+  /** Parâmetros de preço ajustados à mão nesta proposta (null = automático pela tabela). */
+  precos: PrecosManuais;
   /** Sobrescritas de qualquer texto/valor do documento. chave = id do elemento. */
   overrides: Record<string, string>;
 }

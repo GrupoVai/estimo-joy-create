@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { SERVICOS_IDS } from "@/doc/config";
-import { brlBR, calcular } from "@/doc/pricing";
-import type { Bebidas, Config, MenuItem, Proposta, ServicoId } from "@/doc/types";
+import { precosAuto, SERVICOS_IDS } from "@/doc/config";
+import { FAIXAS_LIMITADO } from "@/doc/pages/P4Limitado";
+import { acrescimo, brlBR, calcular, faixaOpenBar, regime } from "@/doc/pricing";
+import type { Bebidas, Config, MenuItem, PrecosManuais, Proposta, ServicoId } from "@/doc/types";
+
+import { PrecoInput } from "./PrecoInput";
 
 const SERVICO_NOME: Record<ServicoId, string> = {
   fonteCachaca: "Fonte de cachaça",
@@ -57,6 +60,56 @@ function Campo({ label, children, hint }: { label: string; children: ReactNode; 
   );
 }
 
+/** Input numérico em que vazio = automático (mostra o valor automático como placeholder). */
+function NumAuto({
+  value,
+  auto,
+  onChange,
+  step,
+  min,
+  sufixo,
+}: {
+  value: number | null;
+  auto: number;
+  onChange: (v: number | null) => void;
+  step?: string;
+  min?: number;
+  sufixo?: string;
+}) {
+  const manual = value !== null;
+  return (
+    <div className="relative">
+      <Input
+        type="number"
+        step={step}
+        min={min}
+        className={`h-8 text-xs tabular-nums ${manual ? "border-amber-400 bg-amber-50 pr-7" : ""}`}
+        value={value ?? ""}
+        placeholder={String(auto)}
+        onChange={(e) => {
+          const t = e.target.value;
+          if (t === "") return onChange(null);
+          const n = parseFloat(t);
+          onChange(Number.isFinite(n) ? n : null);
+        }}
+        title={manual ? `Automático: ${auto}${sufixo ?? ""}` : "Automático — digite para alterar"}
+      />
+      {manual ? (
+        <button
+          type="button"
+          className="absolute top-1/2 right-1 -translate-y-1/2 rounded px-1 text-[11px] text-amber-700 hover:bg-amber-100"
+          title={`Voltar ao automático (${auto}${sufixo ?? ""})`}
+          onClick={() => onChange(null)}
+        >
+          ↺
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+const FAIXA_CURTA = ["Cliente", "Smirnoff + nacional", "Wyborowa + Gordons", "Absolut + premium"];
+
 function maskData(v: string): string {
   const d = v.replace(/\D/g, "").slice(0, 8);
   if (d.length <= 2) return d;
@@ -68,15 +121,40 @@ export interface PainelProps {
   p: Proposta;
   cfg: Config;
   setField: (patch: Partial<Proposta>) => void;
+  setOverride: (key: string, value: string | null) => void;
   setBebidas: (b: Bebidas) => void;
   limparOverrides: () => void;
 }
 
-export function Painel({ p, cfg, setField, setBebidas, limparOverrides }: PainelProps) {
+export function Painel({
+  p,
+  cfg,
+  setField,
+  setOverride,
+  setBebidas,
+  limparOverrides,
+}: PainelProps) {
   const calc = calcular(p, cfg);
   const nOver = Object.keys(p.overrides).length;
   const setMenu = (menu: MenuItem[]) => setField({ menu });
   const [novoDrink, setNovoDrink] = useState<string>("");
+
+  // página 4 — valores automáticos (para placeholder / "voltar ao automático")
+  const precos = p.precos ?? precosAuto();
+  const setPrecos = (patch: Partial<PrecosManuais>) =>
+    setField({ precos: { ...precos, ...patch } });
+  const regimeAuto = regime(p.convidados, cfg);
+  const faixaAuto = faixaOpenBar(p.convidados ?? cfg.limiteOpenBar, cfg);
+  const acrescimoAuto = acrescimo(p.data, cfg).pct;
+  const nManual =
+    (precos.regime !== null ? 1 : 0) +
+    (precos.faixaOpenBar !== null ? 1 : 0) +
+    (precos.acrescimoPct !== null ? 1 : 0) +
+    precos.limitadoUnidades.filter((v) => v !== null).length +
+    precos.limitadoUnitarios.filter((v) => v !== null).length;
+  const nPrecoOver = Object.keys(p.overrides).filter(
+    (k) => k.startsWith("ob.preco.") || k.startsWith("lim.total.") || k.startsWith("lim.unit."),
+  ).length;
 
   return (
     <div className="text-sm">
@@ -313,58 +391,180 @@ export function Painel({ p, cfg, setField, setBebidas, limparOverrides }: Painel
       </Secao>
 
       <Secao titulo="Coquetéis (página 4)">
-        <div className="rounded-md bg-neutral-50 p-3 text-xs">
-          <div className="mb-1 flex items-center justify-between">
-            <span className="font-semibold">
-              Regime:{" "}
-              {calc.regime === "openbar"
-                ? "OPEN BAR (≥ 70 convidados)"
-                : "COQUETÉIS LIMITADOS (< 70)"}
-            </span>
-          </div>
-          {calc.regime === "openbar" ? (
-            <ul className="space-y-0.5 text-neutral-600">
-              <li>
-                Faixa da planilha: {calc.openBar.faixa} convidados · {p.duracao ?? 4}h · acréscimo{" "}
-                {calc.openBar.acrescimoPct}%
-              </li>
-              {calc.openBar.valores.map((v, i) => (
-                <li key={i}>
-                  Opção {i + 1}: <b>{brlBR(v)}</b>
-                  {p.overrides[`ob.preco.${i}`] ? (
-                    <span className="text-amber-600">
-                      {" "}
-                      → sobrescrito: {p.overrides[`ob.preco.${i}`]}
-                    </span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <ul className="space-y-0.5 text-neutral-600">
-              {calc.limitado.totais.map((t, op) => (
-                <li key={op}>
-                  Opção {op + 1} ({calc.limitado.unidades[op]} un.):{" "}
-                  {t.map((v) => brlBR(v)).join(" · ")}
-                </li>
-              ))}
-            </ul>
-          )}
-          {calc.avisos.map((a, i) => (
-            <p key={i} className="mt-1 text-amber-700">
-              ⚠ {a}
-            </p>
-          ))}
-        </div>
+        <p className="text-[11px] text-neutral-400">
+          Tudo aqui é sugerido pela tabela e pode ser alterado. Campos em{" "}
+          <span className="rounded bg-amber-50 px-1 text-amber-700">amarelo</span> estão editados à
+          mão; ↺ volta ao automático.
+        </p>
+        <Campo label="Regime da página 4">
+          <select
+            className={`h-9 w-full rounded-md border bg-white px-2 text-sm ${precos.regime !== null ? "border-amber-400 bg-amber-50" : "border-neutral-300"}`}
+            value={precos.regime ?? ""}
+            onChange={(e) =>
+              setPrecos({
+                regime: e.target.value === "" ? null : (e.target.value as "limitado" | "openbar"),
+              })
+            }
+          >
+            <option value="">
+              Automático —{" "}
+              {regimeAuto === "openbar"
+                ? `Open bar (≥ ${cfg.limiteOpenBar} convidados)`
+                : `Coquetéis limitados (< ${cfg.limiteOpenBar})`}
+            </option>
+            <option value="openbar">Open bar (coquetéis ilimitados)</option>
+            <option value="limitado">Coquetéis limitados</option>
+          </select>
+        </Campo>
+
         {calc.regime === "openbar" ? (
-          <Campo label="Nº de bartenders e copeiros (texto)">
-            <Input
-              value={p.bartenders}
-              onChange={(e) => setField({ bartenders: e.target.value })}
-              placeholder="Ex.: 4"
-            />
-          </Campo>
-        ) : null}
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              <Campo label="Faixa (planilha)">
+                <select
+                  className={`h-8 w-full rounded-md border bg-white px-1 text-xs ${precos.faixaOpenBar !== null ? "border-amber-400 bg-amber-50" : "border-neutral-300"}`}
+                  value={precos.faixaOpenBar ?? ""}
+                  onChange={(e) =>
+                    setPrecos({
+                      faixaOpenBar: e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                >
+                  <option value="">Auto ({faixaAuto})</option>
+                  {cfg.openBar.faixas.map((f) => (
+                    <option key={f.convidados} value={f.convidados}>
+                      {f.convidados} conv.
+                    </option>
+                  ))}
+                </select>
+              </Campo>
+              <Campo label="Horas">
+                <Input
+                  type="number"
+                  min={1}
+                  className="h-8 text-xs tabular-nums"
+                  value={p.duracao ?? ""}
+                  placeholder={String(cfg.openBar.horasBase)}
+                  title="Mesmo campo de 'Duração (horas)' acima"
+                  onChange={(e) =>
+                    setField({
+                      duracao:
+                        e.target.value === "" ? null : Math.max(0, parseFloat(e.target.value) || 0),
+                    })
+                  }
+                />
+              </Campo>
+              <Campo label="Acréscimo %">
+                <NumAuto
+                  value={precos.acrescimoPct}
+                  auto={acrescimoAuto}
+                  step="0.5"
+                  sufixo="%"
+                  onChange={(v) => setPrecos({ acrescimoPct: v })}
+                />
+              </Campo>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-neutral-600">
+                Investimento por opção (vai no PDF)
+              </Label>
+              {calc.openBar.valores.map((v, i) => (
+                <PrecoInput
+                  key={i}
+                  label={`Opção ${i + 1}`}
+                  calculado={v}
+                  override={p.overrides[`ob.preco.${i}`]}
+                  onChange={(val) => setOverride(`ob.preco.${i}`, val)}
+                />
+              ))}
+              <p className="text-[11px] text-neutral-400">
+                Base: {calc.openBar.faixa} conv. × R$/pessoa da tabela ÷ {cfg.openBar.horasBase}h ×{" "}
+                {p.duracao ?? cfg.openBar.horasBase}h + {calc.openBar.acrescimoPct}%
+                {p.ajuste && p.ajuste.valor !== 0
+                  ? ` · ajuste ${p.ajuste.tipo === "pct" ? `${p.ajuste.valor}%` : brlBR(p.ajuste.valor)}`
+                  : ""}
+              </p>
+            </div>
+            <Campo label="Nº de bartenders e copeiros (texto)">
+              <Input
+                value={p.bartenders}
+                onChange={(e) => setField({ bartenders: e.target.value })}
+                placeholder="Ex.: 4"
+              />
+            </Campo>
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              {([0, 1] as const).map((op) => (
+                <Campo key={op} label={`Opção ${op + 1} — unidades`}>
+                  <NumAuto
+                    value={precos.limitadoUnidades[op]}
+                    auto={cfg.limitado.unidades[op]}
+                    min={1}
+                    onChange={(v) => {
+                      const u = [...precos.limitadoUnidades] as PrecosManuais["limitadoUnidades"];
+                      u[op] = v;
+                      setPrecos({ limitadoUnidades: u });
+                    }}
+                  />
+                </Campo>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {FAIXAS_LIMITADO.map((nome, f) => (
+                <div key={f} className="rounded-md border border-neutral-200 p-2">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="truncate text-xs font-semibold" title={nome}>
+                      {FAIXA_CURTA[f]}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-neutral-500">R$/un.</span>
+                      <div className="w-20">
+                        <NumAuto
+                          value={precos.limitadoUnitarios[f] ?? null}
+                          auto={cfg.limitado.unitarios[f] ?? 0}
+                          step="0.5"
+                          min={0}
+                          onChange={(v) => {
+                            const u = [
+                              ...precos.limitadoUnitarios,
+                            ] as PrecosManuais["limitadoUnitarios"];
+                            u[f] = v;
+                            setPrecos({ limitadoUnitarios: u });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {([0, 1] as const).map((op) => (
+                    <PrecoInput
+                      key={op}
+                      label={`Opção ${op + 1}`}
+                      calculado={calc.limitado.totais[op][f] ?? 0}
+                      override={p.overrides[`lim.total.${op}.${f}`]}
+                      onChange={(val) => setOverride(`lim.total.${op}.${f}`, val)}
+                    />
+                  ))}
+                </div>
+              ))}
+              <p className="text-[11px] text-neutral-400">
+                Total = unidades × R$/unidade
+                {p.ajuste && p.ajuste.valor !== 0
+                  ? ` · ajuste ${p.ajuste.tipo === "pct" ? `${p.ajuste.valor}%` : brlBR(p.ajuste.valor)}`
+                  : ""}
+                . O "R$/un." do PDF segue este campo (ou edite direto no preview).
+              </p>
+            </div>
+          </>
+        )}
+
+        {calc.avisos.map((a, i) => (
+          <p key={i} className="text-xs text-amber-700">
+            ⚠ {a}
+          </p>
+        ))}
+
         <Campo
           label="Ajuste geral nos valores (não aparece no PDF)"
           hint="Ex.: −10 % para cliente recorrente. Aplica em todas as opções."
@@ -393,11 +593,41 @@ export function Painel({ p, cfg, setField, setBebidas, limparOverrides }: Painel
             />
           </div>
         </Campo>
-        <div className="flex items-center justify-between text-xs text-neutral-500">
-          <span>{nOver} valor(es)/texto(s) editado(s) à mão no preview</span>
-          <Button size="sm" variant="ghost" disabled={!nOver} onClick={limparOverrides}>
-            Voltar tudo ao calculado
-          </Button>
+        <div className="space-y-1 text-xs text-neutral-500">
+          <p>
+            {nManual + nPrecoOver} ajuste(s) manual(is) nesta seção · {nOver} edição(ões) direto no
+            preview
+          </p>
+          <div className="flex justify-end gap-1">
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!nManual && !nPrecoOver && !(p.ajuste && p.ajuste.valor !== 0)}
+              title="Volta regime, faixa, acréscimo, unidades, R$/un., ajuste geral e os preços da página 4 ao automático"
+              onClick={() => {
+                const overrides = { ...p.overrides };
+                for (const k of Object.keys(overrides))
+                  if (
+                    k.startsWith("ob.preco.") ||
+                    k.startsWith("lim.total.") ||
+                    k.startsWith("lim.unit.")
+                  )
+                    delete overrides[k];
+                setField({ precos: precosAuto(), ajuste: null, overrides });
+              }}
+            >
+              Preços automáticos
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!nOver}
+              title="Remove todas as edições feitas clicando no preview (todas as páginas)"
+              onClick={limparOverrides}
+            >
+              Limpar edições do preview
+            </Button>
+          </div>
         </div>
       </Secao>
 

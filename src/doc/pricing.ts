@@ -86,13 +86,17 @@ export function aplicarAjuste(valor: number, ajuste: Ajuste | null): number {
 export function calcularOpenBar(p: Proposta, cfg: Config): CalculoOpenBar {
   const avisos: string[] = [];
   const convidados = p.convidados ?? cfg.limiteOpenBar;
-  const faixa = faixaOpenBar(convidados, cfg);
+  const manual = p.precos ?? {};
+  const faixa = manual.faixaOpenBar ?? faixaOpenBar(convidados, cfg);
   const row = cfg.openBar.faixas.find((f) => f.convidados === faixa) ?? cfg.openBar.faixas[0];
   const horas = p.duracao ?? cfg.openBar.horasBase;
   if (horas < 2 || horas > 8)
     avisos.push(`Duração de ${horas}h está fora da tabela (2 a 8h) — valor extrapolado.`);
-  const { pct, aviso } = acrescimo(p.data, cfg);
-  if (aviso) avisos.push(aviso);
+  const auto = acrescimo(p.data, cfg);
+  const pct = manual.acrescimoPct ?? auto.pct;
+  if (manual.acrescimoPct === null || manual.acrescimoPct === undefined) {
+    if (auto.aviso) avisos.push(auto.aviso);
+  }
   const pessoa = row?.pessoa ?? [0, 0, 0, 0];
   const base = pessoa.map(
     (v) => ((faixa * v) / cfg.openBar.horasBase) * horas * (1 + pct / 100),
@@ -103,8 +107,17 @@ export function calcularOpenBar(p: Proposta, cfg: Config): CalculoOpenBar {
 
 /** R3 — limitado: unidades × R$/unidade por faixa de bebida. */
 export function calcularLimitado(p: Proposta, cfg: Config): CalculoLimitado {
-  const unidades = cfg.limitado.unidades;
-  const unitarios = cfg.limitado.unitarios;
+  const manual = p.precos ?? {};
+  const unidades = cfg.limitado.unidades.map((u, i) => manual.limitadoUnidades?.[i] ?? u) as [
+    number,
+    number,
+  ];
+  const unitarios = cfg.limitado.unitarios.map((v, i) => manual.limitadoUnitarios?.[i] ?? v) as [
+    number,
+    number,
+    number,
+    number,
+  ];
   const totais = unidades.map((u) =>
     unitarios.map((v) => aplicarAjuste(u * v, p.ajuste)),
   ) as CalculoLimitado["totais"];
@@ -112,7 +125,7 @@ export function calcularLimitado(p: Proposta, cfg: Config): CalculoLimitado {
 }
 
 export function calcular(p: Proposta, cfg: Config): Calculo {
-  const r = regime(p.convidados, cfg);
+  const r = p.precos?.regime ?? regime(p.convidados, cfg);
   const ob = calcularOpenBar(p, cfg);
   const lim = calcularLimitado(p, cfg);
   const cafeteriaTotal = p.cafeteria.pacote * p.cafeteria.unitario;

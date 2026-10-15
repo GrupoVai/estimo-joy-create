@@ -202,6 +202,17 @@ export const SERVICOS_IDS = [
   "maquinaTaca",
 ] as const;
 
+/** Parâmetros de preço todos em "automático". */
+export function precosAuto(): Proposta["precos"] {
+  return {
+    regime: null,
+    faixaOpenBar: null,
+    acrescimoPct: null,
+    limitadoUnidades: [null, null],
+    limitadoUnitarios: [null, null, null, null],
+  };
+}
+
 export function novaProposta(cfg: Config = DEFAULT_CONFIG): Proposta {
   return {
     nome: "",
@@ -230,6 +241,7 @@ export function novaProposta(cfg: Config = DEFAULT_CONFIG): Proposta {
       maquinaTaca: true,
     },
     ajuste: null,
+    precos: precosAuto(),
     overrides: {},
   };
 }
@@ -297,7 +309,8 @@ export function loadProposta(cfg: Config): Proposta {
   const raw = safeGet(KEY_PROPOSTA);
   if (!raw) return novaProposta(cfg);
   try {
-    return { ...novaProposta(cfg), ...(JSON.parse(raw) as Partial<Proposta>) };
+    const saved = JSON.parse(raw) as Partial<Proposta>;
+    return { ...novaProposta(cfg), ...saved, precos: { ...precosAuto(), ...(saved.precos ?? {}) } };
   } catch {
     return novaProposta(cfg);
   }
