@@ -23,6 +23,22 @@ function nomeArquivo(p: Proposta): string {
   return `${nome}-orçamento`;
 }
 
+/**
+ * Esconde o que a hospedagem injeta na página fora do documento (ex.: o selo
+ * "Edit with Lovable", fixo no canto, que sairia impresso em todas as folhas).
+ * Só mexe em filhos diretos do <body> que não contêm o documento.
+ */
+function ocultarInjetados() {
+  const doc = document.querySelector(".doc-print");
+  if (!doc) return;
+  for (const el of Array.from(document.body.children)) {
+    if (!(el instanceof HTMLElement)) continue;
+    if (el === doc || el.contains(doc)) continue;
+    if (/^(SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(el.tagName)) continue;
+    el.style.setProperty("display", "none", "important");
+  }
+}
+
 function Imprimir() {
   const { fixture, auto } = Route.useSearch();
   const [data, setData] = useState<{ proposta: Proposta; config: Config } | null>(null);
@@ -54,11 +70,20 @@ function Imprimir() {
         ),
       );
       if (cancel) return;
+      ocultarInjetados();
       setPronto(true);
-      if (auto !== "0") setTimeout(() => window.print(), 150);
+      if (auto !== "0")
+        setTimeout(() => {
+          ocultarInjetados();
+          window.print();
+        }, 150);
     })();
+    // o selo pode ser injetado depois de a página carregar
+    const obs = new MutationObserver(() => ocultarInjetados());
+    obs.observe(document.body, { childList: true });
     return () => {
       cancel = true;
+      obs.disconnect();
     };
   }, [data, titulo, auto]);
 

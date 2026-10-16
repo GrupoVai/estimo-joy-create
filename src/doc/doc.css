@@ -87,7 +87,10 @@
   .doc-e-over::after {
     display: none;
   }
-  .no-print {
+  .no-print,
+  /* selo "Edit with Lovable" injetado pela hospedagem */
+  [id*="lovable-badge"],
+  body > a[href*="lovable"] {
     display: none !important;
   }
 }
