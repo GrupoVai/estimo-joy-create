@@ -213,8 +213,19 @@ export function precosAuto(): Proposta["precos"] {
   };
 }
 
+/** Id curto e único para o histórico. */
+export function novoId(): string {
+  try {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  } catch {
+    /* sem crypto */
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function novaProposta(cfg: Config = DEFAULT_CONFIG): Proposta {
   return {
+    id: novoId(),
     nome: "",
     evento: cfg.eventos[0] ?? "Formatura",
     eventoOutro: "",
@@ -273,14 +284,14 @@ const KEY_CONFIG = "coktelitas.config.v1";
 const KEY_PROPOSTA = "coktelitas.proposta.v1";
 const KEY_PRINT = "coktelitas.print.v1";
 
-function safeGet(key: string): string | null {
+export function safeGet(key: string): string | null {
   try {
     return typeof window === "undefined" ? null : window.localStorage.getItem(key);
   } catch {
     return null;
   }
 }
-function safeSet(key: string, value: string) {
+export function safeSet(key: string, value: string) {
   try {
     if (typeof window !== "undefined") window.localStorage.setItem(key, value);
   } catch {

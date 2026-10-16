@@ -12,6 +12,11 @@ visualmente idêntico ao modelo do Canva, a partir de um painel de campos.
 
 Não há login nem banco: um usuário, dados salvos no `localStorage`.
 
+**Histórico**: **Salvar** e **Gerar PDF** guardam uma versão do orçamento (botão **Histórico** no topo).
+Para dar desconto depois: abrir o orçamento no histórico → alterar (ajuste geral ou preços da página 4) →
+Gerar PDF; vira a versão seguinte do mesmo orçamento, e as anteriores continuam disponíveis. Dá para
+duplicar, excluir e exportar/importar um backup em JSON (`coktelitas.historico.v1`).
+
 ## Estrutura
 
 ```
@@ -19,6 +24,7 @@ src/doc/
   types.ts        modelo (Proposta, Config)
   config.ts       tabela padrão (planilha 2026/2027), catálogo, presets, persistência
   pricing.ts      motor de cálculo (regras R1–R11) + pricing.test.ts
+  historico.ts    orçamentos salvos com versões (localStorage) + historico.test.ts
   layout.tsx      primitivas A4 em pontos (Page, Txt, Box, Img) e métricas de fonte
   context.tsx     DocProvider + <E> (texto editável inline com sobrescrita)
   Documento.tsx   monta as 9 páginas (página 4 muda com o regime)

@@ -40,6 +40,8 @@ export interface PrecosManuais {
 }
 
 export interface Proposta {
+  /** identifica o orçamento no histórico (mesmo id = mesmo orçamento, versões diferentes) */
+  id: string;
   nome: string;
   evento: string; // valor do dropdown (ex.: "Formatura", "Casamento", "Outras festas")
   eventoOutro: string; // texto livre quando evento === "Outras festas"
