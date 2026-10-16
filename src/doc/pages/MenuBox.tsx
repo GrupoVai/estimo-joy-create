@@ -5,8 +5,6 @@ import { E, useDoc } from "../context";
 import { Box, COR, Dot, FONTES, pt, Txt, topFromBaseline } from "../layout";
 import type { MenuItem } from "../types";
 
-const SOMBRA = "0 0 3pt rgba(0,0,0,0.35)";
-
 export interface MenuBoxProps {
   x?: number;
   y: number;
@@ -58,21 +56,14 @@ export function MenuBox({
 
   return (
     <Box x={x} y={y} w={w} h={h} fill={COR.terra} r={12}>
-      <Txt x={19.5} y={46.6} size={23} weight={700} color="#fff" shadow={SOMBRA}>
+      <Txt x={19.5} y={46.6} size={23} weight={700} color="#fff">
         <E k={`${prefix}.titulo`} def="SUGESTÃO MENU" />
       </Txt>
-      <Txt x={19.5} y={64.6} size={15} italic color="#fff" shadow={SOMBRA}>
+      <Txt x={19.5} y={64.6} size={15} italic color="#fff">
         <E k={`${prefix}.subtitulo`} def="PERSONALIZÁVEL COM CLIENTE" />
       </Txt>
       {sub ? (
-        <Txt
-          x={19.5}
-          y={82.2}
-          size={10.17}
-          color="#fff"
-          shadow={SOMBRA}
-          style={{ textDecoration: "underline" }}
-        >
+        <Txt x={19.5} y={82.2} size={10.17} color="#fff" style={{ textDecoration: "underline" }}>
           {subtituloField ? <E field={subtituloField} def={sub} /> : sub}
         </Txt>
       ) : null}
@@ -87,7 +78,6 @@ export function MenuBox({
           fontSize: pt(size),
           lineHeight: pt(lh),
           color: "#fff",
-          textShadow: SOMBRA,
         }}
       >
         {items.map((item, i) => (

@@ -10,7 +10,6 @@ export function P1Capa() {
   const { p } = useDoc();
   const casamento = p.evento === "Casamento";
   const evento = tipoEvento(p.evento, p.eventoOutro).toUpperCase();
-  const sombra = "0 0 3pt rgba(0,0,0,0.28)";
   // escala do logo em relação à extração (página 3): 179.8 / 103.2
   const s = 1.7422;
   return (
@@ -32,7 +31,6 @@ export function P1Capa() {
         size={40.47}
         font="julius"
         color={COR.branco}
-        shadow={sombra}
         tracking={0.44}
       >
         <E k="capa.evento" def={evento} normalize={(t) => t.toUpperCase()} />
@@ -46,7 +44,6 @@ export function P1Capa() {
         size={27.75}
         font="questrial"
         color={COR.branco}
-        shadow={sombra}
       >
         <E field="nome" def={p.nome.toUpperCase()} normalize={(t) => t.toUpperCase()} />
       </Txt>
@@ -59,7 +56,6 @@ export function P1Capa() {
         size={16.53}
         font="questrial"
         color={COR.branco}
-        shadow={sombra}
         tracking={3.77}
       >
         <E field="data" def={p.data} />

@@ -6,7 +6,6 @@ import { MenuBox } from "./MenuBox";
 
 const TERRA = COR.terra;
 const TRACK = 0.1;
-const SOMBRA = "0 0 3pt rgba(0,0,0,0.35)";
 
 function Campo({
   label,
@@ -44,7 +43,7 @@ export function TituloOutrosServicos() {
   return (
     <>
       <Box x={46.7} y={-44.5} w={310.4} h={160.5} fill={TERRA} r={12} />
-      <Txt x={94} y={65.5} size={19} color="#fff" shadow={SOMBRA}>
+      <Txt x={94} y={65.5} size={19} color="#fff">
         <span style={{ fontStyle: "italic" }}>OUTROS</span>
         <span style={{ fontWeight: 700 }}> SERVIÇOS</span>
       </Txt>

@@ -6,7 +6,6 @@ import { brlBR, numBR } from "../pricing";
 
 const TERRA = COR.terra;
 const CLARA = COR.terraClara;
-const SOMBRA = "0 0 3pt rgba(0,0,0,0.35)";
 
 /** Nomes das faixas de bebida (ordem do PDF: do mais barato ao mais caro). */
 export const FAIXAS_LIMITADO = [
@@ -35,7 +34,7 @@ function Coluna({ op, x, xTitulo }: { op: 0 | 1; x: number; xTitulo: number }) {
   const top = topFromBaseline(131.77, size, "mont", lh);
   return (
     <>
-      <Txt x={xTitulo} y={99.3} size={15} weight={700} color="#fff" shadow={SOMBRA}>
+      <Txt x={xTitulo} y={99.3} size={15} weight={700} color="#fff">
         <E k={`lim.op.${op}.titulo`} def={`OPÇÃO ${op + 1}: ${lim.unidades[op]} UNIDADES`} />
       </Txt>
       <div
@@ -48,7 +47,6 @@ function Coluna({ op, x, xTitulo }: { op: 0 | 1; x: number; xTitulo: number }) {
           fontSize: pt(size),
           lineHeight: pt(lh),
           color: "#fff",
-          textShadow: SOMBRA,
         }}
       >
         {FAIXAS_LIMITADO.map((nome, f) => (
@@ -81,7 +79,7 @@ export function P4Limitado() {
       {/* colunas terracota (cantos r=12; topo além da página) */}
       <Box x={26.8} y={-67.2} w={260.6} h={441.8} fill={TERRA} r={12} />
       <Box x={308.1} y={-67.2} w={260.6} h={441.8} fill={TERRA} r={12} />
-      <Txt x={37.2} y={56.93} size={19} color="#fff" shadow={SOMBRA}>
+      <Txt x={37.2} y={56.93} size={19} color="#fff">
         <span style={{ fontStyle: "italic" }}>COQUETÉIS</span>
         <span style={{ fontWeight: 700 }}> LIMITADOS</span>
       </Txt>

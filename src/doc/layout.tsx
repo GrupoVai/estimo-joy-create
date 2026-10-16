@@ -45,8 +45,12 @@ export interface TxtProps {
   align?: "left" | "center" | "right";
   /** letter-spacing em pt */
   tracking?: number;
-  /** sombra suave do Canva (true) ou CSS text-shadow explícito */
-  shadow?: boolean | string;
+  /**
+   * text-shadow explícito, SEM blur (ex.: "-0.5pt -0.5pt 0 #fff" para "engrossar" o traço).
+   * Nunca use sombra com blur: o Chrome exporta como soft mask e o visualizador de PDF do
+   * iPhone/iPad desenha uma caixa escura atrás do texto.
+   */
+  shadow?: string;
   upper?: boolean;
   nowrap?: boolean;
   style?: CSSProperties;
@@ -66,12 +70,7 @@ export function txtStyle(p: TxtProps): CSSProperties {
   const font = p.font ?? "mont";
   const m = FONTES[font];
   const L = p.lh ?? (m.asc + m.desc) * p.size;
-  const shadow =
-    p.shadow === true
-      ? "0 0 3pt rgba(0,0,0,0.35)"
-      : typeof p.shadow === "string"
-        ? p.shadow
-        : undefined;
+  const shadow = p.shadow;
   const s: CSSProperties = {
     position: "absolute",
     left: pt(p.x),

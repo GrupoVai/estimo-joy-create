@@ -5,7 +5,6 @@ import { Frame } from "./comuns";
 import { B, Bloco, Linha, T } from "./Servicos";
 
 const TERRA = COR.terra;
-const SOMBRA = "0 0 3pt rgba(0,0,0,0.35)";
 const H14 = { size: 14.52, lh: 17.25 } as const;
 const I10 = { size: 10.65, lh: 14.25 } as const;
 const STRIP_Y0 = 259.5;
@@ -105,7 +104,7 @@ export function P7Pagamento() {
       {/* FORMA DE PAGAMENTO */}
       <Frame x={31} y={446.5} w={533.5} h={292} />
       <Box x={50.1} y={382.4} w={310.3} h={89.4} fill={TERRA} r={12} />
-      <Txt x={89.1} y={433.1} size={19} color="#fff" shadow={SOMBRA}>
+      <Txt x={89.1} y={433.1} size={19} color="#fff">
         <span style={{ fontStyle: "italic" }}>FORMA DE</span>
         <span style={{ fontWeight: 700 }}> PAGAMENTO</span>
       </Txt>
