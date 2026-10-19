@@ -101,6 +101,26 @@ export function Editor() {
     };
     window.addEventListener("message", responder);
     setTimeout(() => window.removeEventListener("message", responder), 60_000);
+
+    // Dentro de um quadro (extensão do Chrome) a aba nova não enxerga os dados
+    // e a janelinha fecha ao perder o foco. Imprime num quadro oculto aqui mesmo.
+    let emQuadro = false;
+    try {
+      emQuadro = window.self !== window.top;
+    } catch {
+      emQuadro = true;
+    }
+    if (emQuadro) {
+      document.getElementById("coktelitas-print-frame")?.remove();
+      const f = document.createElement("iframe");
+      f.id = "coktelitas-print-frame";
+      f.src = "/imprimir";
+      f.setAttribute("aria-hidden", "true");
+      f.style.cssText =
+        "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none;";
+      document.body.appendChild(f);
+      return;
+    }
     window.open("/imprimir", "_blank");
   };
 
