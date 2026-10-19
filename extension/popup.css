@@ -1,0 +1,4 @@
+html,body{margin:0;width:800px;height:600px;overflow:hidden;font-family:system-ui,sans-serif}
+header{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#c2695c;color:#fff;font-size:12px;font-weight:600}
+button{background:#fff;color:#c2695c;border:0;border-radius:4px;padding:3px 8px;margin-left:4px;font-size:11px;cursor:pointer}
+iframe{border:0;width:800px;height:568px;display:block}
