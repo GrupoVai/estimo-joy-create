@@ -101,6 +101,9 @@ function Imprimir() {
     };
   }, [data, titulo, auto]);
 
+  if (!data && aguardandoExt) {
+    return <div className="p-8 text-sm text-neutral-600">Preparando o orçamento…</div>;
+  }
   if (!data) {
     return (
       <div className="p-8 text-sm text-neutral-600">
