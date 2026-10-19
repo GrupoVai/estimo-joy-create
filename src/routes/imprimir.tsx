@@ -47,11 +47,11 @@ function Imprimir() {
 
   const [aguardandoExt, setAguardandoExt] = useState(false);
 
-  useEffect(() => {
+  useEffect((): (() => void) | undefined => {
     const fx = fixture ? FIXTURES[fixture] : undefined;
     if (fx) {
       setData({ proposta: fx(), config: DEFAULT_CONFIG });
-      return;
+      return undefined;
     }
     // Aberta pela aba de impressão da extensão: o orçamento chega por mensagem.
     if (origemExtensaoPai()) {
@@ -62,6 +62,7 @@ function Imprimir() {
       });
     }
     setData(loadPrintPayload());
+    return undefined;
   }, [fixture]);
 
   const titulo = useMemo(() => (data ? nomeArquivo(data.proposta) : "orçamento"), [data]);
