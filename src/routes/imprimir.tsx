@@ -46,8 +46,36 @@ function Imprimir() {
 
   useEffect(() => {
     const fx = fixture ? FIXTURES[fixture] : undefined;
-    if (fx) setData({ proposta: fx(), config: DEFAULT_CONFIG });
-    else setData(loadPrintPayload());
+    if (fx) {
+      setData({ proposta: fx(), config: DEFAULT_CONFIG });
+      return;
+    }
+    const opener = window.opener as Window | null;
+    if (!opener) {
+      setData(loadPrintPayload());
+      return;
+    }
+    // Pede o orçamento à aba/quadro que abriu esta página (necessário na extensão).
+    let feito = false;
+    const onMsg = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.tipo !== "coktelitas-impressao" || !e.data.payload) return;
+      feito = true;
+      setData(e.data.payload);
+    };
+    window.addEventListener("message", onMsg);
+    try {
+      opener.postMessage({ tipo: "coktelitas-pedir-impressao" }, window.location.origin);
+    } catch {
+      /* ignora */
+    }
+    const t = setTimeout(() => {
+      if (!feito) setData(loadPrintPayload());
+    }, 1200);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("message", onMsg);
+    };
   }, [fixture]);
 
   const titulo = useMemo(() => (data ? nomeArquivo(data.proposta) : "orçamento"), [data]);

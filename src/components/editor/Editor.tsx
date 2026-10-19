@@ -88,6 +88,19 @@ export function Editor() {
       atualizarHistorico(r.historico);
     }
     savePrintPayload(p, cfg);
+    // Dentro da extensão o site roda num quadro com armazenamento separado da
+    // aba nova; por isso também entregamos o orçamento direto por mensagem.
+    const payload = { proposta: p, config: cfg };
+    const responder = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data?.tipo !== "coktelitas-pedir-impressao") return;
+      (e.source as Window | null)?.postMessage(
+        { tipo: "coktelitas-impressao", payload },
+        window.location.origin,
+      );
+    };
+    window.addEventListener("message", responder);
+    setTimeout(() => window.removeEventListener("message", responder), 60_000);
     window.open("/imprimir", "_blank");
   };
 
