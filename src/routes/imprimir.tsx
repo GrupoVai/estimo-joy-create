@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
 import { DEFAULT_CONFIG, loadPrintPayload } from "@/doc/config";
+import { origemExtensaoPai, receberDaExtensao } from "@/doc/extensao";
 import { DocProvider } from "@/doc/context";
 import { Documento } from "@/doc/Documento";
 import { FIXTURES } from "@/doc/fixtures";
@@ -44,38 +45,24 @@ function Imprimir() {
   const [data, setData] = useState<{ proposta: Proposta; config: Config } | null>(null);
   const [pronto, setPronto] = useState(false);
 
-  useEffect(() => {
+  const [aguardandoExt, setAguardandoExt] = useState(false);
+
+  useEffect((): (() => void) | undefined => {
     const fx = fixture ? FIXTURES[fixture] : undefined;
     if (fx) {
       setData({ proposta: fx(), config: DEFAULT_CONFIG });
-      return;
+      return undefined;
     }
-    const opener = window.opener as Window | null;
-    if (!opener) {
-      setData(loadPrintPayload());
-      return;
+    // Aberta pela aba de impressão da extensão: o orçamento chega por mensagem.
+    if (origemExtensaoPai()) {
+      setAguardandoExt(true);
+      return receberDaExtensao((payload) => {
+        setAguardandoExt(false);
+        setData(payload);
+      });
     }
-    // Pede o orçamento à aba/quadro que abriu esta página (necessário na extensão).
-    let feito = false;
-    const onMsg = (e: MessageEvent) => {
-      if (e.origin !== window.location.origin) return;
-      if (e.data?.tipo !== "coktelitas-impressao" || !e.data.payload) return;
-      feito = true;
-      setData(e.data.payload);
-    };
-    window.addEventListener("message", onMsg);
-    try {
-      opener.postMessage({ tipo: "coktelitas-pedir-impressao" }, window.location.origin);
-    } catch {
-      /* ignora */
-    }
-    const t = setTimeout(() => {
-      if (!feito) setData(loadPrintPayload());
-    }, 1200);
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener("message", onMsg);
-    };
+    setData(loadPrintPayload());
+    return undefined;
   }, [fixture]);
 
   const titulo = useMemo(() => (data ? nomeArquivo(data.proposta) : "orçamento"), [data]);
@@ -115,6 +102,9 @@ function Imprimir() {
     };
   }, [data, titulo, auto]);
 
+  if (!data && aguardandoExt) {
+    return <div className="p-8 text-sm text-neutral-600">Preparando o orçamento…</div>;
+  }
   if (!data) {
     return (
       <div className="p-8 text-sm text-neutral-600">
