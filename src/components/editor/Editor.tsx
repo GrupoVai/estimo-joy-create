@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { savePrintPayload } from "@/doc/config";
+import { imprimirPelaExtensao, origemExtensaoPai } from "@/doc/extensao";
 import { DocProvider } from "@/doc/context";
 import { Documento } from "@/doc/Documento";
 import {
@@ -88,37 +89,12 @@ export function Editor() {
       atualizarHistorico(r.historico);
     }
     savePrintPayload(p, cfg);
-    // Dentro da extensão o site roda num quadro com armazenamento separado da
-    // aba nova; por isso também entregamos o orçamento direto por mensagem.
-    const payload = { proposta: p, config: cfg };
-    const responder = (e: MessageEvent) => {
-      if (e.origin !== window.location.origin) return;
-      if (e.data?.tipo !== "coktelitas-pedir-impressao") return;
-      (e.source as Window | null)?.postMessage(
-        { tipo: "coktelitas-impressao", payload },
-        window.location.origin,
+    const ext = origemExtensaoPai();
+    if (ext) {
+      // Janelinha da extensão: a extensão abre a impressão numa aba própria.
+      imprimirPelaExtensao(ext, { proposta: p, config: cfg }).catch((err: Error) =>
+        toast.error(`Não foi possível abrir a impressão. ${err.message}`),
       );
-    };
-    window.addEventListener("message", responder);
-    setTimeout(() => window.removeEventListener("message", responder), 60_000);
-
-    // Dentro de um quadro (extensão do Chrome) a aba nova não enxerga os dados
-    // e a janelinha fecha ao perder o foco. Imprime num quadro oculto aqui mesmo.
-    let emQuadro = false;
-    try {
-      emQuadro = window.self !== window.top;
-    } catch {
-      emQuadro = true;
-    }
-    if (emQuadro) {
-      document.getElementById("coktelitas-print-frame")?.remove();
-      const f = document.createElement("iframe");
-      f.id = "coktelitas-print-frame";
-      f.src = "/imprimir";
-      f.setAttribute("aria-hidden", "true");
-      f.style.cssText =
-        "position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none;";
-      document.body.appendChild(f);
       return;
     }
     window.open("/imprimir", "_blank");
