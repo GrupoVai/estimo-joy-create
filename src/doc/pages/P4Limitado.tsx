@@ -15,14 +15,14 @@ export const FAIXAS_LIMITADO = [
   "VODKA ABSOLUT + GIN BEEFEATER OU TANQUERAY OU BOMBAY",
 ];
 
-const RESPONSABILIDADE = [
+const responsabilidade = (seguro: number, quebra: number) => [
   "Cardápio personalizado e no porta retrato de acordo com sua decoração;",
   "Possuímos uma carta com vasta variedade de drinks autorais e clássicos  que pode ser escolhido ou desenvolvido junto com o cliente.",
   "Equipe de bartenders treinados e devidamente uniformizados para o seu evento;",
   "Decoração do bar com fruteiras de vidro, peças de prata, cobre ou dourada, caixas para especiarias.",
   "Destilados importados e nacionais, licores, syrup, frutas, gelo de primeira qualidade;",
   "Equipamentos e utensílios de bar;",
-  "Copos e taças de vidro ou semi-acrílico; canecas de alumínio ou cobre. (Seguro de copos R$350,00 ou valor unitário R$ 35,00 – SEGURO DAS CANECAS VER COM O COMERCIAL)",
+  `Copos e taças de vidro ou semi-acrílico; canecas de alumínio ou cobre. (Seguro de copos R$${numBR(seguro)} ou valor unitário ${brlBR(quebra)} – SEGURO DAS CANECAS VER COM O COMERCIAL)`,
   "Balcão e pia não incluso!",
 ];
 
@@ -68,6 +68,8 @@ function Coluna({ op, x, xTitulo }: { op: 0 | 1; x: number; xTitulo: number }) {
 }
 
 export function P4Limitado() {
+  const { calc } = useDoc();
+  const { seguroCopos, quebra } = calc.valoresAno;
   const m = FONTES.mont;
   // bullets da lista de responsabilidade: centro 3 pt acima da linha de base; itens com recuo na 1ª linha
   const lh = 13.5;
@@ -111,7 +113,7 @@ export function P4Limitado() {
       >
         <E k="lim.obs.1a" def="VALOR DO SEGURO DE " />
         <span style={{ fontWeight: 700 }}>
-          <E k="lim.obs.1b" def="TAÇAS E COPOS DE VIDRO : R$ 350,00" />
+          <E k="lim.obs.1b" def={`TAÇAS E COPOS DE VIDRO : ${brlBR(seguroCopos)}`} />
         </span>
         {"\n"}
         <span style={{ fontWeight: 700 }}>
@@ -134,7 +136,7 @@ export function P4Limitado() {
         </span>
         <E k="lim.obs.2c" def="QUEBRA OU EXTRAVIO " />
         <span style={{ fontWeight: 700 }}>
-          <E k="lim.obs.2d" def="FORA DO SEGURO: R$ 35,00" />
+          <E k="lim.obs.2d" def={`FORA DO SEGURO: ${brlBR(quebra)}`} />
         </span>
         .
       </Txt>
@@ -162,7 +164,7 @@ export function P4Limitado() {
           color: TERRA,
         }}
       >
-        {RESPONSABILIDADE.map((t, i) => (
+        {responsabilidade(seguroCopos, quebra).map((t, i) => (
           <div key={i} style={{ position: "relative", textIndent: pt(17) }}>
             <Dot x={6} y={dotY} d={3} color={TERRA} />
             <E k={`lim.resp.${i}`} def={t} />

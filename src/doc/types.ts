@@ -56,13 +56,24 @@ export interface Proposta {
   menuSubtitulo: string; // "" => sem subtítulo
   menu: MenuItem[];
   bartenders: string; // só open bar
-  cafeteria: { ativo: boolean; pacote: number; unitario: number };
+  /** unitario null = automático pelo ano do evento (Config.porAno) */
+  cafeteria: { ativo: boolean; pacote: number; unitario: number | null };
   servicos: Record<ServicoId, boolean>;
   ajuste: Ajuste | null;
   /** Parâmetros de preço ajustados à mão nesta proposta (null = automático pela tabela). */
   precos: PrecosManuais;
   /** Sobrescritas de qualquer texto/valor do documento. chave = id do elemento. */
   overrides: Record<string, string>;
+}
+
+/** Valores que mudam conforme o ano do evento. */
+export interface ValoresAno {
+  /** seguro de taças e copos de vidro (R$) */
+  seguroCopos: number;
+  /** cada quebra ou extravio fora do seguro (R$) */
+  quebra: number;
+  /** cafeteria: R$ por unidade */
+  cafeteriaUnitario: number;
 }
 
 export interface FaixaOpenBar {
@@ -84,7 +95,9 @@ export interface Config {
     /** R$/unidade por faixa: [cliente, smirnoff+nacional, wyborowa+gordons, absolut+premium] */
     unitarios: [number, number, number, number];
   };
-  cafeteria: { pacote: number; unitario: number };
+  cafeteria: { pacote: number };
+  /** valores por ano do evento (chave = ano); ano sem linha usa o último ano anterior cadastrado */
+  porAno: Record<string, ValoresAno>;
   catalogo: MenuItem[];
   presets: { com: string[]; comESem: string[] }; // ids do catálogo
   cafes: MenuItem[];

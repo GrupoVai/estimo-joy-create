@@ -564,6 +564,13 @@ export function Painel({
             ⚠ {a}
           </p>
         ))}
+        <p className="text-[11px] text-neutral-400">
+          Observações (tabela {calc.ano}): seguro de copos{" "}
+          <b className="font-medium text-neutral-600">{brlBR(calc.valoresAno.seguroCopos)}</b> ·
+          quebra/extravio{" "}
+          <b className="font-medium text-neutral-600">{brlBR(calc.valoresAno.quebra)}</b>. Muda pelo
+          ano da data do evento; para alterar, clique no valor no preview.
+        </p>
 
         <Campo
           label="Ajuste geral nos valores (não aparece no PDF)"
@@ -651,20 +658,22 @@ export function Painel({
               }
             />
           </Campo>
-          <Campo label="Valor unidade (R$)">
-            <Input
-              type="number"
-              step="0.5"
+          <Campo label={`Valor unidade (R$) — tabela ${calc.ano}`}>
+            <NumAuto
               value={p.cafeteria.unitario}
-              onChange={(e) =>
-                setField({
-                  cafeteria: { ...p.cafeteria, unitario: parseFloat(e.target.value) || 0 },
-                })
-              }
+              auto={calc.valoresAno.cafeteriaUnitario}
+              step="0.5"
+              min={0}
+              onChange={(v) => setField({ cafeteria: { ...p.cafeteria, unitario: v } })}
             />
           </Campo>
         </div>
-        <p className="text-xs text-neutral-500">Total: {brlBR(calc.cafeteriaTotal)}</p>
+        <p className="text-xs text-neutral-500">
+          Total: {brlBR(calc.cafeteriaTotal)}{" "}
+          <span className="text-neutral-400">
+            ({p.cafeteria.pacote} × {brlBR(calc.cafeteriaUnitario)})
+          </span>
+        </p>
       </Secao>
 
       <Secao titulo="Serviços adicionais (páginas 6 e 7)">

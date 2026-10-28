@@ -1,6 +1,6 @@
 // Motor de cálculo — regras R1 a R11 da especificação.
 // Funções puras: entram proposta + config, saem valores sugeridos e avisos.
-import type { Ajuste, Config, Proposta } from "./types";
+import type { Ajuste, Config, Proposta, ValoresAno } from "./types";
 
 export type Regime = "limitado" | "openbar";
 
@@ -22,6 +22,12 @@ export interface Calculo {
   regime: Regime;
   openBar: CalculoOpenBar;
   limitado: CalculoLimitado;
+  /** ano do evento usado nas tabelas por ano (data vazia => ano atual) */
+  ano: number;
+  /** valores da tabela do ano: seguro, quebra, cafeteria */
+  valoresAno: ValoresAno;
+  /** R$/unidade efetivo da cafeteria (manual ou do ano) */
+  cafeteriaUnitario: number;
   cafeteriaTotal: number;
   avisos: string[];
 }
@@ -77,6 +83,24 @@ export function acrescimo(data: string, cfg: Config): { pct: number; aviso: stri
   };
 }
 
+/**
+ * Valores por ano do evento (seguro de copos, quebra, cafeteria). Sem data válida usa o ano
+ * atual; ano sem linha na tabela usa o maior ano cadastrado que seja menor (ou o primeiro).
+ */
+export function valoresDoAno(data: string, cfg: Config): { ano: number; valores: ValoresAno } {
+  const ano = parseData(data)?.ano ?? new Date().getFullYear();
+  const anos = Object.keys(cfg.porAno)
+    .map((a) => parseInt(a, 10))
+    .filter((a) => Number.isFinite(a))
+    .sort((a, b) => a - b);
+  const fallback: ValoresAno = { seguroCopos: 0, quebra: 0, cafeteriaUnitario: 0 };
+  if (anos.length === 0) return { ano, valores: fallback };
+  const direto = cfg.porAno[String(ano)];
+  if (direto) return { ano, valores: direto };
+  const anterior = [...anos].reverse().find((a) => a < ano) ?? anos[0];
+  return { ano, valores: cfg.porAno[String(anterior)] ?? fallback };
+}
+
 export function aplicarAjuste(valor: number, ajuste: Ajuste | null): number {
   if (!ajuste || !Number.isFinite(ajuste.valor) || ajuste.valor === 0) return valor;
   return ajuste.tipo === "pct" ? valor * (1 + ajuste.valor / 100) : valor + ajuste.valor;
@@ -128,9 +152,20 @@ export function calcular(p: Proposta, cfg: Config): Calculo {
   const r = p.precos?.regime ?? regime(p.convidados, cfg);
   const ob = calcularOpenBar(p, cfg);
   const lim = calcularLimitado(p, cfg);
-  const cafeteriaTotal = p.cafeteria.pacote * p.cafeteria.unitario;
+  const { ano, valores: valoresAno } = valoresDoAno(p.data, cfg);
+  const cafeteriaUnitario = p.cafeteria.unitario ?? valoresAno.cafeteriaUnitario;
+  const cafeteriaTotal = p.cafeteria.pacote * cafeteriaUnitario;
   const avisos = r === "openbar" ? ob.avisos : [];
-  return { regime: r, openBar: ob, limitado: lim, cafeteriaTotal, avisos };
+  return {
+    regime: r,
+    openBar: ob,
+    limitado: lim,
+    ano,
+    valoresAno,
+    cafeteriaUnitario,
+    cafeteriaTotal,
+    avisos,
+  };
 }
 
 // ---------- formatação ----------

@@ -25,6 +25,7 @@ import {
   type Versao,
 } from "@/doc/historico";
 import { PAGE_W } from "@/doc/layout";
+import { migrarArmazenamento } from "@/doc/migracoes";
 import type { Proposta } from "@/doc/types";
 
 import { Historico } from "./Historico";
@@ -40,6 +41,7 @@ export function Editor() {
   const carregado = p !== null;
 
   useEffect(() => {
+    migrarArmazenamento();
     setHistorico(loadHistorico());
   }, []);
 

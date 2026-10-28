@@ -362,15 +362,58 @@ export function TabelaPrecos() {
                 onChange={(v) => up({ cafeteria: { ...c.cafeteria, pacote: Math.round(v) } })}
               />
             </div>
-            <div>
-              <Label className="text-xs">Valor unidade (R$)</Label>
-              <Num
-                step={0.5}
-                value={c.cafeteria.unitario}
-                onChange={(v) => up({ cafeteria: { ...c.cafeteria, unitario: v } })}
-              />
-            </div>
+            <p className="self-end pb-2 text-[11px] text-neutral-400">
+              O R$/unidade está na tabela por ano, acima.
+            </p>
           </div>
+        </Bloco>
+
+        <Bloco
+          titulo="Valores por ano do evento (R$)"
+          desc="Seguro de taças e copos · cada quebra/extravio fora do seguro · cafeteria por unidade. Evento em ano sem linha usa o último ano anterior."
+        >
+          <div className="grid grid-cols-4 items-center gap-2 text-[11px] text-neutral-500">
+            <span>Ano</span>
+            <span>Seguro copos</span>
+            <span>Quebra</span>
+            <span>Cafeteria/un.</span>
+          </div>
+          {Object.keys(c.porAno)
+            .sort()
+            .map((ano) => {
+              const v = c.porAno[ano] ?? { seguroCopos: 0, quebra: 0, cafeteriaUnitario: 0 };
+              const set = (patch: Partial<typeof v>) =>
+                up({ porAno: { ...c.porAno, [ano]: { ...v, ...patch } } });
+              return (
+                <div key={ano} className="mb-2 grid grid-cols-4 items-center gap-2">
+                  <span className="text-xs font-semibold">{ano}</span>
+                  <Num value={v.seguroCopos} onChange={(x) => set({ seguroCopos: x })} />
+                  <Num value={v.quebra} onChange={(x) => set({ quebra: x })} />
+                  <Num
+                    step={0.5}
+                    value={v.cafeteriaUnitario}
+                    onChange={(x) => set({ cafeteriaUnitario: x })}
+                  />
+                </div>
+              );
+            })}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              const anosPA = Object.keys(c.porAno).sort();
+              const last = anosPA[anosPA.length - 1];
+              const novo = String((parseInt(last ?? "2027", 10) || 2027) + 1);
+              const base = (last && c.porAno[last]) || {
+                seguroCopos: 0,
+                quebra: 0,
+                cafeteriaUnitario: 0,
+              };
+              up({ porAno: { ...c.porAno, [novo]: { ...base } } });
+            }}
+          >
+            <Plus /> Adicionar ano
+          </Button>
         </Bloco>
 
         <Bloco

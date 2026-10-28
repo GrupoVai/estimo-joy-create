@@ -281,7 +281,7 @@ export function P4OpenBar() {
         tracking={9.18 * TRACK}
         lh={9.75}
       >
-        {B(<E k="ob.obs.2a" def="R$ 350,00" />)}
+        {B(<E k="ob.obs.2a" def={brlBR(calc.valoresAno.seguroCopos)} />)}
         <E k="ob.obs.2b" def={" EM QUALQUER UMA DAS\nOPÇÕES."} />
       </Txt>
       <Txt
@@ -296,7 +296,7 @@ export function P4OpenBar() {
       >
         <E k="ob.obs.3" def={"VALOR DE CADA QUEBRA OU\nEXTRAVIO FORA DO SEGURO:"} />
         {"\n"}
-        {B(<E k="ob.obs.4" def="R$ 35,00" />)}
+        {B(<E k="ob.obs.4" def={brlBR(calc.valoresAno.quebra)} />)}
       </Txt>
 
       {/* RESPONSABILIDADE DA CONTRATADA */}

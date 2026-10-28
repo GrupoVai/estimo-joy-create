@@ -9,6 +9,7 @@ import {
   saveProposta,
   subtituloDoPreset,
 } from "@/doc/config";
+import { migrarArmazenamento } from "@/doc/migracoes";
 import type { Bebidas, Config, Proposta } from "@/doc/types";
 
 export function useProposta() {
@@ -17,6 +18,7 @@ export function useProposta() {
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
+    migrarArmazenamento();
     const c = loadConfig();
     setCfg(c);
     setP(loadProposta(c));

@@ -164,7 +164,11 @@ export const DEFAULT_CONFIG: Config = {
     acrescimos: { "2026": [0, 0, 0], "2027": [5, 10, 15] },
   },
   limitado: { unidades: [150, 200], unitarios: [16, 17, 18, 20] },
-  cafeteria: { pacote: 150, unitario: 18 },
+  cafeteria: { pacote: 150 },
+  porAno: {
+    "2026": { seguroCopos: 350, quebra: 35, cafeteriaUnitario: 18 },
+    "2027": { seguroCopos: 450, quebra: 45, cafeteriaUnitario: 20 },
+  },
   catalogo: CATALOGO,
   presets: {
     com: [
@@ -240,7 +244,7 @@ export function novaProposta(cfg: Config = DEFAULT_CONFIG): Proposta {
     menuSubtitulo: "",
     menu: menuDoPreset("com", cfg),
     bartenders: "",
-    cafeteria: { ativo: true, pacote: cfg.cafeteria.pacote, unitario: cfg.cafeteria.unitario },
+    cafeteria: { ativo: true, pacote: cfg.cafeteria.pacote, unitario: null },
     servicos: {
       fonteCachaca: true,
       torreEspumante: true,
@@ -304,7 +308,8 @@ export function loadConfig(): Config {
   if (!raw) return DEFAULT_CONFIG;
   try {
     const saved = JSON.parse(raw) as Partial<Config>;
-    return { ...DEFAULT_CONFIG, ...saved };
+    // configs salvas antes de existir `porAno` ganham a tabela padrão
+    return { ...DEFAULT_CONFIG, ...saved, porAno: saved.porAno ?? DEFAULT_CONFIG.porAno };
   } catch {
     return DEFAULT_CONFIG;
   }

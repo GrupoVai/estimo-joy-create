@@ -1,6 +1,6 @@
 import { E, useDoc } from "../context";
 import { Box, COR, Img, Page, Txt } from "../layout";
-import { brlBR, numBR } from "../pricing";
+import { brlBR, numBR, parseBR } from "../pricing";
 import { Frame, Logo } from "./comuns";
 import { MenuBox } from "./MenuBox";
 
@@ -73,7 +73,14 @@ export function P5Cafeteria() {
         />
       </Campo>
       <Campo label="VALOR UNIDADE:" yLabel={324.4} yValor={340.9}>
-        <E k="caf.unitario" def={numBR(caf.unitario)} />
+        <E
+          k="caf.unitario"
+          def={numBR(calc.cafeteriaUnitario)}
+          onCommit={(t) => {
+            const n = parseBR(t);
+            if (n !== null) setField({ cafeteria: { ...caf, unitario: n } });
+          }}
+        />
       </Campo>
       <Campo label="VALOR TOTAL:" yLabel={373.9} yValor={390.4}>
         <E k="caf.total" def={brlBR(calc.cafeteriaTotal).replace("R$ ", "R$")} />

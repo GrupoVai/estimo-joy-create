@@ -142,3 +142,28 @@ describe("parâmetros manuais (painel 'Coquetéis página 4')", () => {
     expect(c.limitado.totais[1]).toEqual([3200, 4000, 3600, 4000]);
   });
 });
+
+describe("valores por ano do evento (seguro, quebra, cafeteria)", () => {
+  it("2026 = 350 / 35 / 18; 2027 = 450 / 45 / 20", () => {
+    const p26 = { ...novaProposta(cfg), data: "10/12/2026" };
+    const c26 = calcular(p26, cfg);
+    expect(c26.ano).toBe(2026);
+    expect(c26.valoresAno).toEqual({ seguroCopos: 350, quebra: 35, cafeteriaUnitario: 18 });
+    expect(c26.cafeteriaTotal).toBe(2700);
+    const c27 = calcular({ ...p26, data: "31/07/2027" }, cfg);
+    expect(c27.ano).toBe(2027);
+    expect(c27.valoresAno).toEqual({ seguroCopos: 450, quebra: 45, cafeteriaUnitario: 20 });
+    expect(c27.cafeteriaUnitario).toBe(20);
+    expect(c27.cafeteriaTotal).toBe(3000);
+  });
+
+  it("ano sem linha usa o último anterior; sem data usa o ano atual; manual vence", () => {
+    const p = { ...novaProposta(cfg), data: "01/01/2029" };
+    expect(calcular(p, cfg).valoresAno.cafeteriaUnitario).toBe(20);
+    const semData = calcular({ ...p, data: "" }, cfg);
+    expect(semData.ano).toBe(new Date().getFullYear());
+    const manual = calcular({ ...p, cafeteria: { ativo: true, pacote: 150, unitario: 18 } }, cfg);
+    expect(manual.cafeteriaUnitario).toBe(18);
+    expect(manual.cafeteriaTotal).toBe(2700);
+  });
+});
