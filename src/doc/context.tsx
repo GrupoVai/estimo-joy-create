@@ -14,7 +14,10 @@ export interface DocCtx {
   setOverride: (key: string, value: string | null) => void;
 }
 
-const Ctx = createContext<DocCtx | null>(null);
+// Mantém o mesmo contexto entre recargas a quente (HMR); senão o Provider e o
+// useDoc podem acabar usando instâncias diferentes e dar "fora de DocProvider".
+const g = globalThis as { __coktelitasDocCtx?: React.Context<DocCtx | null> };
+const Ctx = (g.__coktelitasDocCtx ??= createContext<DocCtx | null>(null));
 
 export function DocProvider({
   p,
