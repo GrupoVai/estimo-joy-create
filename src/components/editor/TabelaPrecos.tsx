@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DEFAULT_CONFIG, loadConfig, saveConfig } from "@/doc/config";
 import type { Config, MenuItem } from "@/doc/types";
+import { APP_DATA, APP_VERSAO } from "@/versao";
 
 function Num({
   value,
@@ -98,6 +99,9 @@ export function TabelaPrecos() {
           </Link>
         </Button>
         <span className="text-sm font-semibold">Tabela de preços e catálogo</span>
+        <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] tabular-nums text-neutral-500">
+          {APP_VERSAO} · {APP_DATA}
+        </span>
         <div className="ml-auto flex items-center gap-1">
           <input
             ref={fileRef}

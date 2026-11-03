@@ -26,6 +26,7 @@ import {
 } from "@/doc/historico";
 import { PAGE_W } from "@/doc/layout";
 import { migrarArmazenamento } from "@/doc/migracoes";
+import { APP_DATA, APP_NOVIDADES, APP_VERSAO } from "@/versao";
 import type { Proposta } from "@/doc/types";
 
 import { Historico } from "./Historico";
@@ -165,6 +166,12 @@ export function Editor() {
       <header className="flex h-12 shrink-0 items-center gap-2 border-b border-neutral-200 bg-white px-4">
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold tracking-tight">
           Gerador de Orçamentos · Coktelitas
+        </span>
+        <span
+          className="shrink-0 cursor-help rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] tabular-nums text-neutral-500"
+          title={`Versão ${APP_VERSAO} de ${APP_DATA}. Se aparecer outra versão, o app publicado está desatualizado (Publish → Update no Lovable) ou o navegador está com cache (Ctrl+Shift+R).\n\n${APP_NOVIDADES.join("\n")}`}
+        >
+          {APP_VERSAO} · {APP_DATA}
         </span>
         <span className="ml-2 hidden max-w-[320px] truncate text-xs text-neutral-400 xl:inline">
           {entradaAtual
