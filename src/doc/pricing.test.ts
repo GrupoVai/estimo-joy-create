@@ -9,6 +9,7 @@ import {
   faixaOpenBar,
   numBR,
   parseBR,
+  parseData,
   regime,
 } from "./pricing";
 
@@ -165,5 +166,20 @@ describe("valores por ano do evento (seguro, quebra, cafeteria)", () => {
     const manual = calcular({ ...p, cafeteria: { ativo: true, pacote: 150, unitario: 18 } }, cfg);
     expect(manual.cafeteriaUnitario).toBe(18);
     expect(manual.cafeteriaTotal).toBe(2700);
+  });
+});
+
+describe("data com ano de 2 dígitos", () => {
+  it("31/07/27 vale como 2027 (acréscimo, tabela por ano)", () => {
+    expect(parseData("31/07/27")).toEqual({ dia: 31, mes: 7, ano: 2027 });
+    expect(parseData("31/07/2027")).toEqual({ dia: 31, mes: 7, ano: 2027 });
+    expect(parseData("31-07-27")?.ano).toBe(2027);
+    expect(parseData("31/07/202")).toBeNull();
+    expect(acrescimo("31/07/27", cfg)).toEqual({ pct: 10, aviso: null });
+    const c = calcular({ ...novaProposta(cfg), data: "31/07/27", convidados: 90 }, cfg);
+    expect(c.ano).toBe(2027);
+    expect(c.valoresAno.seguroCopos).toBe(450);
+    expect(c.cafeteriaTotal).toBe(3000);
+    expect(c.openBar.acrescimoPct).toBe(10);
   });
 });

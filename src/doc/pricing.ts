@@ -37,13 +37,14 @@ export function regime(convidados: number | null, cfg: Config): Regime {
   return convidados !== null && convidados >= cfg.limiteOpenBar ? "openbar" : "limitado";
 }
 
-/** Data dd/mm/aaaa => {dia, mes, ano} ou null. */
+/** Data dd/mm/aaaa ou dd/mm/aa => {dia, mes, ano} ou null. */
 export function parseData(data: string): { dia: number; mes: number; ano: number } | null {
-  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(data.trim());
+  // aceita dd/mm/aaaa e dd/mm/aa (27 => 2027); separador / - ou .
+  const m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/.exec(data.trim());
   if (!m) return null;
   const dia = Number(m[1]);
   const mes = Number(m[2]);
-  const ano = Number(m[3]);
+  const ano = m[3]!.length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
   if (mes < 1 || mes > 12 || dia < 1 || dia > 31) return null;
   return { dia, mes, ano };
 }

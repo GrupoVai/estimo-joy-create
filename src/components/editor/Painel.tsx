@@ -189,7 +189,7 @@ export function Painel({
           </Campo>
         ) : null}
         <div className="grid grid-cols-2 gap-3">
-          <Campo label="Data (dd/mm/aaaa)">
+          <Campo label="Data (dd/mm/aaaa ou dd/mm/aa)">
             <Input
               value={p.data}
               inputMode="numeric"
