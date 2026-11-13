@@ -2,7 +2,7 @@
 // Funções puras: entram proposta + config, saem valores sugeridos e avisos.
 import type { Ajuste, Config, Proposta, ValoresAno } from "./types";
 
-export type Regime = "limitado" | "openbar";
+export type Regime = "limitado" | "openbar" | "semAlcool";
 
 export interface CalculoOpenBar {
   faixa: number; // aba da planilha usada
@@ -22,6 +22,8 @@ export interface Calculo {
   regime: Regime;
   openBar: CalculoOpenBar;
   limitado: CalculoLimitado;
+  /** investimento do pacote na página "drinks sem álcool" (digitado; null = ainda não informado) */
+  pacoteSemAlcool: number | null;
   /** ano do evento usado nas tabelas por ano (data vazia => ano atual) */
   ano: number;
   /** valores da tabela do ano: seguro, quebra, cafeteria */
@@ -35,6 +37,11 @@ export interface Calculo {
 /** R1 — regime pelo número de convidados. Sem convidados => limitado. */
 export function regime(convidados: number | null, cfg: Config): Regime {
   return convidados !== null && convidados >= cfg.limiteOpenBar ? "openbar" : "limitado";
+}
+
+/** Regime automático da proposta: só sem álcool => página de 1 card (valor manual); senão R1. */
+export function regimeAuto(p: Proposta, cfg: Config): Regime {
+  return p.bebidas === "sem" ? "semAlcool" : regime(p.convidados, cfg);
 }
 
 /** Data dd/mm/aaaa ou dd/mm/aa => {dia, mes, ano} ou null. */
@@ -150,17 +157,21 @@ export function calcularLimitado(p: Proposta, cfg: Config): CalculoLimitado {
 }
 
 export function calcular(p: Proposta, cfg: Config): Calculo {
-  const r = p.precos?.regime ?? regime(p.convidados, cfg);
+  const r = p.precos?.regime ?? regimeAuto(p, cfg);
   const ob = calcularOpenBar(p, cfg);
   const lim = calcularLimitado(p, cfg);
   const { ano, valores: valoresAno } = valoresDoAno(p.data, cfg);
   const cafeteriaUnitario = p.cafeteria.unitario ?? valoresAno.cafeteriaUnitario;
   const cafeteriaTotal = p.cafeteria.pacote * cafeteriaUnitario;
   const avisos = r === "openbar" ? ob.avisos : [];
+  const pacoteSemAlcool = p.precos?.pacoteSemAlcool ?? null;
+  if (r === "semAlcool" && pacoteSemAlcool === null)
+    avisos.push("Informe o investimento do pacote (drinks sem álcool) — não há tabela para ele.");
   return {
     regime: r,
     openBar: ob,
     limitado: lim,
+    pacoteSemAlcool,
     ano,
     valoresAno,
     cafeteriaUnitario,

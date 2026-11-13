@@ -9,7 +9,13 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { precosAuto, SERVICOS_IDS } from "@/doc/config";
 import { FAIXAS_LIMITADO } from "@/doc/pages/P4Limitado";
-import { acrescimo, brlBR, calcular, faixaOpenBar, regime } from "@/doc/pricing";
+import {
+  acrescimo,
+  brlBR,
+  calcular,
+  faixaOpenBar,
+  regimeAuto as regimeAutomatico,
+} from "@/doc/pricing";
 import type { Bebidas, Config, MenuItem, PrecosManuais, Proposta, ServicoId } from "@/doc/types";
 
 import { PrecoInput } from "./PrecoInput";
@@ -143,7 +149,7 @@ export function Painel({
   const precos = p.precos ?? precosAuto();
   const setPrecos = (patch: Partial<PrecosManuais>) =>
     setField({ precos: { ...precos, ...patch } });
-  const regimeAuto = regime(p.convidados, cfg);
+  const regimeAuto = regimeAutomatico(p, cfg);
   const faixaAuto = faixaOpenBar(p.convidados ?? cfg.limiteOpenBar, cfg);
   const acrescimoAuto = acrescimo(p.data, cfg).pct;
   const nManual =
@@ -170,7 +176,12 @@ export function Painel({
           <select
             className="h-9 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm"
             value={p.evento}
-            onChange={(e) => setField({ evento: e.target.value })}
+            onChange={(e) => {
+              const evento = e.target.value;
+              setField({ evento });
+              // festa de 15 anos costuma ser só sem álcool: já troca o menu e a página 4
+              if (evento === "XV anos" && p.bebidas !== "sem") setBebidas("sem");
+            }}
           >
             {cfg.eventos.map((ev) => (
               <option key={ev} value={ev}>
@@ -402,22 +413,76 @@ export function Painel({
             value={precos.regime ?? ""}
             onChange={(e) =>
               setPrecos({
-                regime: e.target.value === "" ? null : (e.target.value as "limitado" | "openbar"),
+                regime:
+                  e.target.value === ""
+                    ? null
+                    : (e.target.value as "limitado" | "openbar" | "semAlcool"),
               })
             }
           >
             <option value="">
               Automático —{" "}
-              {regimeAuto === "openbar"
-                ? `Open bar (≥ ${cfg.limiteOpenBar} convidados)`
-                : `Coquetéis limitados (< ${cfg.limiteOpenBar})`}
+              {regimeAuto === "semAlcool"
+                ? "Drinks sem álcool (1 card, valor digitado)"
+                : regimeAuto === "openbar"
+                  ? `Open bar (≥ ${cfg.limiteOpenBar} convidados)`
+                  : `Coquetéis limitados (< ${cfg.limiteOpenBar})`}
             </option>
             <option value="openbar">Open bar (coquetéis ilimitados)</option>
             <option value="limitado">Coquetéis limitados</option>
+            <option value="semAlcool">Drinks sem álcool (1 card, valor digitado)</option>
           </select>
         </Campo>
 
-        {calc.regime === "openbar" ? (
+        {calc.regime === "semAlcool" ? (
+          <>
+            <p className="text-[11px] text-neutral-400">
+              Página "Coquetéis ilimitados" com um único card (Opção 4 — drinks sem álcool). Não há
+              tabela: digite o valor do pacote.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Campo label="Investimento do pacote (R$)">
+                <Input
+                  type="number"
+                  step="50"
+                  min={0}
+                  className={`h-8 text-xs tabular-nums ${calc.pacoteSemAlcool === null ? "border-amber-400" : ""}`}
+                  value={precos.pacoteSemAlcool ?? ""}
+                  placeholder="Ex.: 8500"
+                  onChange={(e) => {
+                    const n = parseFloat(e.target.value);
+                    setPrecos({
+                      pacoteSemAlcool: e.target.value === "" || !Number.isFinite(n) ? null : n,
+                    });
+                  }}
+                />
+              </Campo>
+              <Campo label="Horas (subtítulo)">
+                <Input
+                  type="number"
+                  min={1}
+                  className="h-8 text-xs tabular-nums"
+                  value={p.duracao ?? ""}
+                  placeholder={String(cfg.openBar.horasBase)}
+                  title="Mesmo campo de 'Duração (horas)' acima"
+                  onChange={(e) =>
+                    setField({
+                      duracao:
+                        e.target.value === "" ? null : Math.max(0, parseFloat(e.target.value) || 0),
+                    })
+                  }
+                />
+              </Campo>
+            </div>
+            <Campo label="Nº de bartenders e copeiros (texto)">
+              <Input
+                value={p.bartenders}
+                onChange={(e) => setField({ bartenders: e.target.value })}
+                placeholder="Ex.: 4"
+              />
+            </Campo>
+          </>
+        ) : calc.regime === "openbar" ? (
           <>
             <div className="grid grid-cols-3 gap-2">
               <Campo label="Faixa (planilha)">

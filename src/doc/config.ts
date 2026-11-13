@@ -85,6 +85,32 @@ const CATALOGO: MenuItem[] = [
       "Suco de Abacaxi com Xarope azul e xarope de baunilha e decorado com algodão doce.",
     alcool: false,
   },
+  // Preset 3 — "Coquetéis sem álcool" (menu da Georgia, XV anos)
+  {
+    id: "coquetel-de-frutas",
+    nome: "COQUETEL DE FRUTAS",
+    ingredientes: "Suco de goiaba, caju e manga, leite condensado, creme de leite e groselha.",
+    alcool: false,
+  },
+  {
+    id: "soda-italiana",
+    nome: "SODA ITALIANA",
+    ingredientes: "Xarope a escolha, limão taiti, soda.",
+    alcool: false,
+  },
+  {
+    id: "primavera",
+    nome: "PRIMAVERA",
+    ingredientes:
+      "Morangos macerados, suco de abacaxi, sumo de limão taiti, xarope de amora, xarope de gengibre.",
+    alcool: false,
+  },
+  {
+    id: "apple-kiwi",
+    nome: "APPLE KIWI",
+    ingredientes: "Kiwi macerado, suco de abacaxi, xarope de maçã verde.",
+    alcool: false,
+  },
 ];
 
 const CAFES: MenuItem[] = [
@@ -140,7 +166,7 @@ const CAFES: MenuItem[] = [
 
 // ---------- Configuração padrão (planilha CALCULOS OPEN BAR 2026-2027 + PDFs) ----------
 export const DEFAULT_CONFIG: Config = {
-  eventos: ["Formatura", "Casamento", "Aniversário", "Corporativo", "Outras festas"],
+  eventos: ["Formatura", "Casamento", "XV anos", "Aniversário", "Corporativo", "Outras festas"],
   limiteOpenBar: 70,
   openBar: {
     horasBase: 4,
@@ -191,6 +217,16 @@ export const DEFAULT_CONFIG: Config = {
       "tropicana",
       "sweet-blue",
     ],
+    sem: [
+      "coktelitas",
+      "pantera-cor-de-rosa",
+      "coquetel-de-frutas",
+      "soda-italiana",
+      "tropicana",
+      "sweet-blue",
+      "primavera",
+      "apple-kiwi",
+    ],
   },
   cafes: CAFES,
 };
@@ -210,6 +246,7 @@ export const SERVICOS_IDS = [
 export function precosAuto(): Proposta["precos"] {
   return {
     regime: null,
+    pacoteSemAlcool: null,
     faixaOpenBar: null,
     acrescimoPct: null,
     limitadoUnidades: [null, null],
@@ -270,16 +307,22 @@ export function menuDoPreset(
   let ids: string[];
   if (bebidas === "com") ids = cfg.presets.com;
   else if (bebidas === "com_e_sem") ids = cfg.presets.comESem;
+  else if (cfg.presets.sem?.length) ids = cfg.presets.sem;
   else ids = cfg.catalogo.filter((m) => !m.alcool).map((m) => m.id);
   return ids
     .map((id) => byId.get(id))
     .filter((m): m is MenuItem => !!m)
-    .map((m) => ({ ...m }));
+    .map((m) =>
+      // num menu só sem álcool o marcador "(Sem álcool)" é redundante
+      bebidas === "sem"
+        ? { ...m, ingredientes: m.ingredientes.replace(/\s*\(sem álcool\)\.?\s*$/i, "") }
+        : { ...m },
+    );
 }
 
 export function subtituloDoPreset(bebidas: Proposta["bebidas"]): string {
   if (bebidas === "com_e_sem") return "coquetéis com e sem álcool:";
-  if (bebidas === "sem") return "coquetéis sem álcool:";
+  if (bebidas === "sem") return "Coquetéis sem álcool:";
   return "";
 }
 
@@ -308,12 +351,33 @@ export function loadConfig(): Config {
   if (!raw) return DEFAULT_CONFIG;
   try {
     const saved = JSON.parse(raw) as Partial<Config>;
-    // configs salvas antes de existir `porAno` ganham a tabela padrão
-    return { ...DEFAULT_CONFIG, ...saved, porAno: saved.porAno ?? DEFAULT_CONFIG.porAno };
+    return mesclarConfig(saved);
   } catch {
     return DEFAULT_CONFIG;
   }
 }
+/**
+ * Completa uma config salva em versão anterior com o que o app passou a ter depois
+ * (tabela por ano, preset sem álcool, drinks e eventos novos), sem perder o que foi editado.
+ */
+export function mesclarConfig(saved: Partial<Config>): Config {
+  const base = DEFAULT_CONFIG;
+  const catalogo = saved.catalogo ?? base.catalogo;
+  const ids = new Set(catalogo.map((m) => m.id));
+  const presets = { ...base.presets, ...(saved.presets ?? {}) };
+  const eventos = saved.eventos ?? base.eventos;
+  return {
+    ...base,
+    ...saved,
+    porAno: saved.porAno ?? base.porAno,
+    presets,
+    catalogo: [...catalogo, ...base.catalogo.filter((m) => !ids.has(m.id))],
+    eventos: base.eventos.every((e) => eventos.includes(e))
+      ? eventos
+      : [...eventos, ...base.eventos.filter((e) => !eventos.includes(e))],
+  };
+}
+
 export function saveConfig(cfg: Config) {
   safeSet(KEY_CONFIG, JSON.stringify(cfg));
 }

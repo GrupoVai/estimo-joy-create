@@ -33,14 +33,13 @@ function Card({ i }: { i: number }) {
   );
 }
 
-export function P4OpenBar() {
-  const { p, calc } = useDoc();
-  const ob = calc.openBar;
+/** Logo do topo, título "COQUETÉIS ILIMITADOS", subtítulo "OPEN BAR - N HORAS" e caixa "Como funciona?". */
+export function CabecalhoOpenBar() {
+  const { p } = useDoc();
   const horas = p.duracao ?? 4;
   const s = 0.6308; // escala do logo do topo (65,1 / 103,2)
-
   return (
-    <Page n={4} className="doc-p4b">
+    <>
       {/* logo topo (terracota clara) */}
       <Svg
         name="logo-wordmark"
@@ -100,7 +99,136 @@ export function P4OpenBar() {
         {B(<E k="ob.como.6" def="MARCAS DE DESTILADOS" />)}
         <E k="ob.como.7" def=" UTILIZADAS NO EVENTO." />
       </Txt>
+    </>
+  );
+}
 
+/** Molduras "Observações" e "Responsabilidade da contratada" (iguais no open bar e no sem álcool). */
+export function RodapeOpenBar() {
+  const { p, calc } = useDoc();
+  return (
+    <>
+      {/* OBSERVAÇÕES */}
+      <Frame x={9.9} y={591.3} w={575.7} h={81.4} />
+      <Svg
+        name="ob-txt-observacoes"
+        x={216}
+        y={588}
+        w={122}
+        h={21}
+        color={TERRA}
+        style={{
+          background: "#fff",
+          padding: "0 3pt",
+          boxSizing: "content-box",
+          marginLeft: "-3pt",
+        }}
+      />
+      <Svg name="ob-icon-shield" x={23} y={616} w={46} h={46} />
+      <Svg name="ob-icon-glass" x={304} y={616} w={46} h={46} />
+      <Txt
+        x={70.5}
+        w={200}
+        align="center"
+        y={624.89}
+        size={9.18}
+        color={TERRA}
+        tracking={9.18 * TRACK}
+        lh={9.75}
+      >
+        <E k="ob.obs.1" def={"VALOR DO SEGURO DE COPOS E\nTAÇAS DE VIDRO:"} />
+      </Txt>
+      <Txt
+        x={70.5}
+        w={200}
+        align="center"
+        y={654.15}
+        size={9.18}
+        color={TERRA}
+        tracking={9.18 * TRACK}
+        lh={9.75}
+      >
+        {B(<E k="ob.obs.2a" def={brlBR(calc.valoresAno.seguroCopos)} />)}
+        <E k="ob.obs.2b" def={" EM QUALQUER UMA DAS\nOPÇÕES."} />
+      </Txt>
+      <Txt
+        x={334}
+        w={200}
+        align="center"
+        y={624.89}
+        size={9.18}
+        color={TERRA}
+        tracking={9.18 * TRACK}
+        lh={9.75}
+      >
+        <E k="ob.obs.3" def={"VALOR DE CADA QUEBRA OU\nEXTRAVIO FORA DO SEGURO:"} />
+        {"\n"}
+        {B(<E k="ob.obs.4" def={brlBR(calc.valoresAno.quebra)} />)}
+      </Txt>
+
+      {/* RESPONSABILIDADE DA CONTRATADA */}
+      <Frame x={11.2} y={681} w={575.8} h={178.8} />
+      <Svg
+        name="ob-txt-responsabilidade"
+        x={134}
+        y={678}
+        w={304}
+        h={21}
+        color={TERRA}
+        style={{
+          background: "#fff",
+          padding: "0 3pt",
+          boxSizing: "content-box",
+          marginLeft: "-3pt",
+        }}
+      />
+      <Txt
+        x={27.75}
+        w={540}
+        align="center"
+        y={708.36}
+        size={10.18}
+        color={TERRA}
+        tracking={10.18 * TRACK}
+        lh={11.25}
+      >
+        <E
+          k="ob.resp.intro"
+          def={
+            "A COKTELITAS SE COMPROMETE EM LEVAR TODO MATERIAL NECESSÁRIO PARA A\nREALIZAÇÃO DO SEU EVENTO, CONFORME ABAIXO:"
+          }
+        />
+      </Txt>
+      {[764.4, 786.9, 809.5].map((cy, i) => (
+        <span key={i}>
+          <Box x={24.3 - 8.9} y={cy - 8.9} w={17.8} h={17.8} stroke={TERRA} strokeW={1.2} r="50%" />
+          <Svg name="ob-icon-check" x={18} y={cy - 5.4} w={12} h={10} />
+        </span>
+      ))}
+      <Txt x={40.4} y={769.15} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
+        <E k="ob.resp.1" def="BARTENDERS E COPEIROS PROFISSIONAIS COM O NUMERO DE: " />
+        <E field="bartenders" def={p.bartenders} />
+      </Txt>
+      <Txt x={38.3} y={790.27} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
+        <E
+          k="ob.resp.2"
+          def="CARDÁPIO PERSONALIZADO DE ACORDO COM A ESCOLHA DOS DRINKS DO CLIENTE."
+        />
+      </Txt>
+      <Txt x={39.0} y={814.2} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
+        <E k="ob.resp.3" def="DECORAÇÃO E UNIFORME DE ACORDO COM DECORAÇÃO DA FESTA." />
+      </Txt>
+    </>
+  );
+}
+
+export function P4OpenBar() {
+  const { calc } = useDoc();
+  const ob = calc.openBar;
+
+  return (
+    <Page n={4} className="doc-p4b">
+      <CabecalhoOpenBar />
       {/* cards: moldura, linha divisória, caixa "investimento" (sobrepõe a base da moldura) */}
       {[0, 1, 2, 3].map((i) => (
         <Card key={i} i={i} />
@@ -241,116 +369,7 @@ export function P4OpenBar() {
         <E k="ob.c3.b" def={"CONSULTAR O\nNUMERO DE\nGARRAFAS."} />
       </Txt>
 
-      {/* OBSERVAÇÕES */}
-      <Frame x={9.9} y={591.3} w={575.7} h={81.4} />
-      <Svg
-        name="ob-txt-observacoes"
-        x={216}
-        y={588}
-        w={122}
-        h={21}
-        color={TERRA}
-        style={{
-          background: "#fff",
-          padding: "0 3pt",
-          boxSizing: "content-box",
-          marginLeft: "-3pt",
-        }}
-      />
-      <Svg name="ob-icon-shield" x={23} y={616} w={46} h={46} />
-      <Svg name="ob-icon-glass" x={304} y={616} w={46} h={46} />
-      <Txt
-        x={70.5}
-        w={200}
-        align="center"
-        y={624.89}
-        size={9.18}
-        color={TERRA}
-        tracking={9.18 * TRACK}
-        lh={9.75}
-      >
-        <E k="ob.obs.1" def={"VALOR DO SEGURO DE COPOS E\nTAÇAS DE VIDRO:"} />
-      </Txt>
-      <Txt
-        x={70.5}
-        w={200}
-        align="center"
-        y={654.15}
-        size={9.18}
-        color={TERRA}
-        tracking={9.18 * TRACK}
-        lh={9.75}
-      >
-        {B(<E k="ob.obs.2a" def={brlBR(calc.valoresAno.seguroCopos)} />)}
-        <E k="ob.obs.2b" def={" EM QUALQUER UMA DAS\nOPÇÕES."} />
-      </Txt>
-      <Txt
-        x={334}
-        w={200}
-        align="center"
-        y={624.89}
-        size={9.18}
-        color={TERRA}
-        tracking={9.18 * TRACK}
-        lh={9.75}
-      >
-        <E k="ob.obs.3" def={"VALOR DE CADA QUEBRA OU\nEXTRAVIO FORA DO SEGURO:"} />
-        {"\n"}
-        {B(<E k="ob.obs.4" def={brlBR(calc.valoresAno.quebra)} />)}
-      </Txt>
-
-      {/* RESPONSABILIDADE DA CONTRATADA */}
-      <Frame x={11.2} y={681} w={575.8} h={178.8} />
-      <Svg
-        name="ob-txt-responsabilidade"
-        x={134}
-        y={678}
-        w={304}
-        h={21}
-        color={TERRA}
-        style={{
-          background: "#fff",
-          padding: "0 3pt",
-          boxSizing: "content-box",
-          marginLeft: "-3pt",
-        }}
-      />
-      <Txt
-        x={27.75}
-        w={540}
-        align="center"
-        y={708.36}
-        size={10.18}
-        color={TERRA}
-        tracking={10.18 * TRACK}
-        lh={11.25}
-      >
-        <E
-          k="ob.resp.intro"
-          def={
-            "A COKTELITAS SE COMPROMETE EM LEVAR TODO MATERIAL NECESSÁRIO PARA A\nREALIZAÇÃO DO SEU EVENTO, CONFORME ABAIXO:"
-          }
-        />
-      </Txt>
-      {[764.4, 786.9, 809.5].map((cy, i) => (
-        <span key={i}>
-          <Box x={24.3 - 8.9} y={cy - 8.9} w={17.8} h={17.8} stroke={TERRA} strokeW={1.2} r="50%" />
-          <Svg name="ob-icon-check" x={18} y={cy - 5.4} w={12} h={10} />
-        </span>
-      ))}
-      <Txt x={40.4} y={769.15} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
-        <E k="ob.resp.1" def="BARTENDERS E COPEIROS PROFISSIONAIS COM O NUMERO DE: " />
-        <E field="bartenders" def={p.bartenders} />
-      </Txt>
-      <Txt x={38.3} y={790.27} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
-        <E
-          k="ob.resp.2"
-          def="CARDÁPIO PERSONALIZADO DE ACORDO COM A ESCOLHA DOS DRINKS DO CLIENTE."
-        />
-      </Txt>
-      <Txt x={39.0} y={814.2} size={10.18} color={TERRA} tracking={10.18 * TRACK}>
-        <E k="ob.resp.3" def="DECORAÇÃO E UNIFORME DE ACORDO COM DECORAÇÃO DA FESTA." />
-      </Txt>
+      <RodapeOpenBar />
     </Page>
   );
 }

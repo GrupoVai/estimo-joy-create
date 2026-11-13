@@ -27,8 +27,10 @@ export interface Ajuste {
 }
 
 export interface PrecosManuais {
-  /** força o regime da página 4 (null = pelo nº de convidados) */
-  regime: "limitado" | "openbar" | null;
+  /** força o regime da página 4 (null = automático: sem álcool => 1 card; senão pelo nº de convidados) */
+  regime: "limitado" | "openbar" | "semAlcool" | null;
+  /** página 4 "drinks sem álcool": investimento do pacote, digitado à mão (sem tabela) */
+  pacoteSemAlcool: number | null;
   /** aba da planilha (convidados) usada no open bar */
   faixaOpenBar: number | null;
   /** acréscimo % sobre a base 2026 */
@@ -99,6 +101,6 @@ export interface Config {
   /** valores por ano do evento (chave = ano); ano sem linha usa o último ano anterior cadastrado */
   porAno: Record<string, ValoresAno>;
   catalogo: MenuItem[];
-  presets: { com: string[]; comESem: string[] }; // ids do catálogo
+  presets: { com: string[]; comESem: string[]; sem: string[] }; // ids do catálogo
   cafes: MenuItem[];
 }

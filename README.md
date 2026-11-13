@@ -40,6 +40,9 @@ src/components/editor/  painel, editor, tabela de preços
 - **Open bar**: `convidados_faixa × R$/pessoa ÷ 4 × horas × (1 + acréscimo)`; faixa = aba mais próxima da
   planilha; acréscimo 2027 por quadrimestre (5/10/15%).
 - **Limitado**: 150/200 unidades × R$16/17/18/20.
+- **Drinks sem álcool** (XV anos): quando Bebidas = "Sem álcool", a página 4 vira o modelo de 1 card
+  (Opção 4 — drinks sem álcool) e o investimento do pacote é **digitado** (não há tabela). O evento
+  "XV anos" tem capa própria e já seleciona "Sem álcool" (menu `presets.sem`, 8 drinks).
 - **Por ano do evento** (tabela "Valores por ano"): seguro de taças e copos, cada quebra/extravio fora do
   seguro e R$/unidade da cafeteria — 2026: 350 / 35 / 18; 2027: 450 / 45 / 20. Vale pelo ano da data do
   evento (sem data: ano atual; ano sem linha: último anterior). A data aceita `dd/mm/aaaa` ou `dd/mm/aa`.

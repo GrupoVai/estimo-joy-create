@@ -55,6 +55,7 @@ function entradaValida(e: unknown): e is OrcamentoSalvo {
 export function valoresResumo(p: Proposta, cfg: Config): number[] {
   const c = calcular(p, cfg);
   const arred = (v: number) => Math.round(v * 100) / 100;
+  if (c.regime === "semAlcool") return [arred(c.pacoteSemAlcool ?? 0)];
   if (c.regime === "openbar") return c.openBar.valores.map(arred);
   return c.limitado.totais[0].map(arred);
 }

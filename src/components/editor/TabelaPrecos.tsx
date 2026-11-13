@@ -422,7 +422,7 @@ export function TabelaPrecos() {
 
         <Bloco
           titulo="Catálogo de drinks"
-          desc="Marque se contém álcool e em quais menus sugeridos entra (C = com álcool, M = com e sem). Sem álcool entra automaticamente no menu 'sem álcool'."
+          desc="Marque se contém álcool e em quais menus sugeridos entra (C = com álcool, M = com e sem, S = só sem álcool — XV anos). A ordem do menu segue a ordem do catálogo."
         >
           <div className="space-y-2">
             {c.catalogo.map((d, i) => (
@@ -487,6 +487,26 @@ export function TabelaPrecos() {
                       }
                     />{" "}
                     M
+                  </label>
+                  <label
+                    className="flex items-center gap-1 text-[11px]"
+                    title="Menu só sem álcool (XV anos)"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={(c.presets.sem ?? []).includes(d.id)}
+                      onChange={(e) =>
+                        up({
+                          presets: {
+                            ...c.presets,
+                            sem: e.target.checked
+                              ? [...(c.presets.sem ?? []), d.id]
+                              : (c.presets.sem ?? []).filter((x) => x !== d.id),
+                          },
+                        })
+                      }
+                    />{" "}
+                    S
                   </label>
                   <Button
                     variant="ghost"

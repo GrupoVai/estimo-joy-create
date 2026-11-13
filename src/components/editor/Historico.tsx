@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { fmtDataHora, ultimaVersao, type OrcamentoSalvo, type Versao } from "@/doc/historico";
 import { tipoEvento } from "@/doc/pages/P1Capa";
-import { brlBR, regime } from "@/doc/pricing";
+import { brlBR, regimeAuto } from "@/doc/pricing";
 import type { Config, Proposta } from "@/doc/types";
 
 export interface HistoricoProps {
@@ -32,7 +32,7 @@ export interface HistoricoProps {
 }
 
 function resumo(p: Proposta, cfg: Config) {
-  const r = p.precos?.regime ?? regime(p.convidados, cfg);
+  const r = p.precos?.regime ?? regimeAuto(p, cfg);
   const ev = tipoEvento(p.evento, p.eventoOutro) || "—";
   return { r, ev };
 }
@@ -147,10 +147,18 @@ export function Historico({
                           {p.data ? ` · ${p.data}` : ""}
                           {p.convidados !== null ? ` · ${p.convidados} conv.` : ""}
                           {" · "}
-                          {r === "openbar" ? "open bar" : "limitado"}
+                          {r === "openbar"
+                            ? "open bar"
+                            : r === "semAlcool"
+                              ? "sem álcool"
+                              : "limitado"}
                         </div>
                         <div className="mt-1 text-xs tabular-nums text-neutral-700">
-                          {r === "openbar" ? "Opção 1: " : "Op. 1 (cliente): "}
+                          {r === "openbar"
+                            ? "Opção 1: "
+                            : r === "semAlcool"
+                              ? "Pacote: "
+                              : "Op. 1 (cliente): "}
                           <b>{brlBR(v.valores[0] ?? 0)}</b>
                           {p.ajuste && p.ajuste.valor !== 0 ? (
                             <span className="ml-1 text-amber-700">

@@ -1,5 +1,5 @@
 // Propostas de referência — reproduzem os dois PDFs originais (usadas na conferência visual).
-import { DEFAULT_CONFIG, menuDoPreset, novaProposta } from "./config";
+import { DEFAULT_CONFIG, menuDoPreset, novaProposta, subtituloDoPreset } from "./config";
 import type { Proposta } from "./types";
 
 export function fixtureTallita(): Proposta {
@@ -51,4 +51,24 @@ export function fixtureAlessandra(): Proposta {
 export const FIXTURES: Record<string, () => Proposta> = {
   tallita: fixtureTallita,
   alessandra: fixtureAlessandra,
+  georgia: fixtureGeorgia,
 };
+
+/** Georgia Gomes — XV anos (PDF de 13/11/2026): só sem álcool, 1 card com valor digitado. */
+export function fixtureGeorgia(): Proposta {
+  const base = novaProposta(DEFAULT_CONFIG);
+  return {
+    ...base,
+    nome: "Georgia Gomes",
+    evento: "XV anos",
+    data: "12/02/2027",
+    local: "La Maison",
+    deslocamento: "",
+    convidados: 150,
+    duracao: 6,
+    bebidas: "sem",
+    menuSubtitulo: subtituloDoPreset("sem"),
+    menu: menuDoPreset("sem", DEFAULT_CONFIG),
+    precos: { ...base.precos, pacoteSemAlcool: 8500 },
+  };
+}

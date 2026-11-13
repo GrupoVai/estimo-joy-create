@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_CONFIG, novaProposta } from "./config";
+import { DEFAULT_CONFIG, menuDoPreset, mesclarConfig, novaProposta } from "./config";
 import {
   acrescimo,
   brlBR,
@@ -181,5 +181,57 @@ describe("data com ano de 2 dígitos", () => {
     expect(c.valoresAno.seguroCopos).toBe(450);
     expect(c.cafeteriaTotal).toBe(3000);
     expect(c.openBar.acrescimoPct).toBe(10);
+  });
+});
+
+describe("XV anos / drinks sem álcool", () => {
+  it("bebidas 'sem' => regime semAlcool (1 card), valor digitado, sem tabela", () => {
+    const base = novaProposta(cfg);
+    const p = { ...base, bebidas: "sem" as const, convidados: 150, duracao: 6 };
+    const c = calcular(p, cfg);
+    expect(c.regime).toBe("semAlcool");
+    expect(c.pacoteSemAlcool).toBeNull();
+    expect(c.avisos.some((a) => /pacote/.test(a))).toBe(true);
+    const c2 = calcular({ ...p, precos: { ...p.precos, pacoteSemAlcool: 8500 } }, cfg);
+    expect(c2.pacoteSemAlcool).toBe(8500);
+    expect(c2.avisos).toEqual([]);
+    // 150 convidados com álcool continua open bar; regime manual vence
+    expect(calcular({ ...p, bebidas: "com" }, cfg).regime).toBe("openbar");
+    expect(calcular({ ...p, precos: { ...p.precos, regime: "limitado" } }, cfg).regime).toBe(
+      "limitado",
+    );
+  });
+
+  it("menu 'sem álcool' segue o preset na ordem do PDF e sem o marcador (Sem álcool)", () => {
+    const menu = menuDoPreset("sem", cfg);
+    expect(menu.map((m) => m.nome)).toEqual([
+      "COKTELITAS",
+      "PANTERA COR DE ROSA S/A",
+      "COQUETEL DE FRUTAS",
+      "SODA ITALIANA",
+      "TROPICANA",
+      "SWEET BLUE",
+      "PRIMAVERA",
+      "APPLE KIWI",
+    ]);
+    expect(menu.every((m) => !m.alcool)).toBe(true);
+    expect(menu.find((m) => m.id === "tropicana")?.ingredientes).toBe(
+      "Maracujá, tropical blue e limão.",
+    );
+    expect(cfg.eventos).toContain("XV anos");
+  });
+
+  it("config salva em versão antiga ganha drinks, preset e evento novos", () => {
+    const antiga = {
+      ...cfg,
+      eventos: ["Formatura", "Casamento", "Aniversário", "Corporativo", "Outras festas"],
+      catalogo: cfg.catalogo.slice(0, 10),
+      presets: { com: cfg.presets.com, comESem: cfg.presets.comESem },
+    } as unknown as Partial<typeof cfg>;
+    const m = mesclarConfig(antiga);
+    expect(m.eventos).toContain("XV anos");
+    expect(m.presets.sem).toEqual(cfg.presets.sem);
+    expect(m.catalogo.map((x) => x.id)).toContain("apple-kiwi");
+    expect(m.catalogo.length).toBe(cfg.catalogo.length);
   });
 });
