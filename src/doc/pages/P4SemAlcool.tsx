@@ -33,9 +33,9 @@ export function P4SemAlcool() {
         strokeW={sw}
         r={27.7}
       />
-      {/* aba "OPÇÃO 4" */}
+      {/* aba "OPÇÃO" (sem número, a pedido da Coktelitas), centralizada na aba */}
       <Svg name="ob-tab" x={226.5} y={252} w={120} h={58} color={TERRA} />
-      <Svg name="ob-txt-opcao-4" x={260.8} y={261.4} w={58} h={19} color="#fff" />
+      <Svg name="ob-txt-opcao" x={286.5 - 43.16 / 2} y={261.4} w={43.16} h={19} color="#fff" />
       {/* taça + copo com gelo */}
       <Svg name="sa-icon-drinks" x={228.8} y={336.5} w={109.6} h={93.3} />
       <Txt

@@ -15,6 +15,7 @@ import obTxtOpcao1 from "./assets/svg/ob-txt-opcao-1.svg?raw";
 import obTxtOpcao2 from "./assets/svg/ob-txt-opcao-2.svg?raw";
 import obTxtOpcao3 from "./assets/svg/ob-txt-opcao-3.svg?raw";
 import obTxtOpcao4 from "./assets/svg/ob-txt-opcao-4.svg?raw";
+import obTxtOpcao from "./assets/svg/ob-txt-opcao.svg?raw";
 import obTxtResponsabilidade from "./assets/svg/ob-txt-responsabilidade.svg?raw";
 import saIconDrinks from "./assets/svg/sa-icon-drinks.svg?raw";
 import { pt } from "./layout";
@@ -33,6 +34,8 @@ export const SVGS = {
   "ob-txt-opcao-2": obTxtOpcao2,
   "ob-txt-opcao-3": obTxtOpcao3,
   "ob-txt-opcao-4": obTxtOpcao4,
+  /** "OPÇÃO" sem número (card único do XV anos) */
+  "ob-txt-opcao": obTxtOpcao,
   "ob-txt-responsabilidade": obTxtResponsabilidade,
   /** taça + copo com gelo (card "drinks sem álcool"); cores próprias, não recolorível */
   "sa-icon-drinks": saIconDrinks,
