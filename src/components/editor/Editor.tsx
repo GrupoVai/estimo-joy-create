@@ -91,16 +91,20 @@ export function Editor() {
       const r = salvarVersao(p, cfg, historico);
       atualizarHistorico(r.historico);
     }
-    savePrintPayload(p, cfg);
+    const payload = savePrintPayload(p, cfg);
     const ext = origemExtensaoPai();
     if (ext) {
       // Janelinha da extensão: a extensão abre a impressão numa aba própria.
-      imprimirPelaExtensao(ext, { proposta: p, config: cfg }).catch((err: Error) =>
+      imprimirPelaExtensao(ext, payload).catch((err: Error) =>
         toast.error(`Não foi possível abrir a impressão. ${err.message}`),
       );
       return;
     }
-    window.open("/imprimir", "_blank");
+    // Sempre a mesma aba/janela de impressão: um novo "Gerar PDF" recarrega a que já existe,
+    // em vez de deixar janelas antigas (com versões antigas do orçamento) abertas por aí.
+    const w = window.open(`/imprimir?v=${encodeURIComponent(APP_VERSAO)}`, "coktelitas-imprimir");
+    if (w) w.focus();
+    else toast.error("O navegador bloqueou a janela de impressão. Permita pop-ups para este site.");
   };
 
   const confirmarDescarte = () =>

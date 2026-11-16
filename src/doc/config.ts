@@ -1,3 +1,5 @@
+import type { PrintPayload } from "./extensao";
+import { APP_VERSAO } from "../versao";
 import type { Config, MenuItem, Proposta } from "./types";
 
 // ---------- Catálogo de drinks (texto exatamente como enviado pela Coktelitas) ----------
@@ -400,14 +402,21 @@ export function saveProposta(p: Proposta) {
 }
 
 /** Dados entregues à tela de impressão (/imprimir). */
-export function savePrintPayload(p: Proposta, cfg: Config) {
-  safeSet(KEY_PRINT, JSON.stringify({ proposta: p, config: cfg }));
+export function savePrintPayload(p: Proposta, cfg: Config): PrintPayload {
+  const payload: PrintPayload = {
+    proposta: p,
+    config: cfg,
+    geradoEm: Date.now(),
+    versao: APP_VERSAO,
+  };
+  safeSet(KEY_PRINT, JSON.stringify(payload));
+  return payload;
 }
-export function loadPrintPayload(): { proposta: Proposta; config: Config } | null {
+export function loadPrintPayload(): PrintPayload | null {
   const raw = safeGet(KEY_PRINT);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as { proposta: Proposta; config: Config };
+    return JSON.parse(raw) as PrintPayload;
   } catch {
     return null;
   }

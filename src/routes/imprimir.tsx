@@ -2,19 +2,24 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 
 import { DEFAULT_CONFIG, loadPrintPayload } from "@/doc/config";
-import { origemExtensaoPai, receberDaExtensao } from "@/doc/extensao";
+import { origemExtensaoPai, receberDaExtensao, type PrintPayload } from "@/doc/extensao";
 import { DocProvider } from "@/doc/context";
 import { Documento } from "@/doc/Documento";
 import { FIXTURES } from "@/doc/fixtures";
-import type { Config, Proposta } from "@/doc/types";
+import { fmtDataHora } from "@/doc/historico";
+import { tipoEvento } from "@/doc/pages/P1Capa";
+import { calcular } from "@/doc/pricing";
+import type { Proposta } from "@/doc/types";
+import { APP_VERSAO } from "@/versao";
 
-type Search = { fixture?: string; auto?: string };
+type Search = { fixture?: string; auto?: string; v?: string };
 
 export const Route = createFileRoute("/imprimir")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>): Search => ({
     ...(typeof s["fixture"] === "string" ? { fixture: s["fixture"] } : {}),
     ...(typeof s["auto"] === "string" ? { auto: s["auto"] } : {}),
+    ...(typeof s["v"] === "string" ? { v: s["v"] } : {}),
   }),
   component: Imprimir,
 });
@@ -42,7 +47,7 @@ function ocultarInjetados() {
 
 function Imprimir() {
   const { fixture, auto } = Route.useSearch();
-  const [data, setData] = useState<{ proposta: Proposta; config: Config } | null>(null);
+  const [data, setData] = useState<PrintPayload | null>(null);
   const [pronto, setPronto] = useState(false);
 
   const [aguardandoExt, setAguardandoExt] = useState(false);
@@ -112,8 +117,83 @@ function Imprimir() {
       </div>
     );
   }
+  const calc = calcular(data.proposta, data.config);
+  const regimeTxt =
+    calc.regime === "semAlcool"
+      ? "drinks sem álcool (1 card, valor digitado)"
+      : calc.regime === "openbar"
+        ? "open bar (4 opções)"
+        : "coquetéis limitados";
+  const versaoDiferente = !!data.versao && data.versao !== APP_VERSAO;
   return (
     <div className="doc-print" data-pronto={pronto ? "1" : "0"} style={{ background: "#fff" }}>
+      {/* faixa de conferência — não sai no PDF (.no-print) */}
+      <div
+        className="no-print"
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "8px 16px",
+          padding: "8px 16px",
+          background: versaoDiferente ? "#fef3c7" : "#f5f5f4",
+          borderBottom: "1px solid #e7e5e4",
+          font: "13px system-ui, sans-serif",
+          color: "#292524",
+        }}
+      >
+        <span>
+          <b>{data.proposta.nome.trim() || "(sem nome)"}</b>
+          {" · "}
+          {tipoEvento(data.proposta.evento, data.proposta.eventoOutro) || "evento"}
+          {data.proposta.data ? ` · ${data.proposta.data}` : ""}
+          {" · página 4: "}
+          <b>{regimeTxt}</b>
+        </span>
+        <span style={{ color: "#78716c" }}>
+          {data.geradoEm ? `gerado ${fmtDataHora(new Date(data.geradoEm).toISOString())}` : ""}
+          {" · "}
+          {APP_VERSAO}
+        </span>
+        {versaoDiferente ? (
+          <span style={{ color: "#92400e" }}>
+            Esta página está em outra versão ({APP_VERSAO}) que o editor ({data.versao}). Recarregue
+            com Ctrl+Shift+R.
+          </span>
+        ) : null}
+        <span style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => window.print()}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 6,
+              border: 0,
+              background: "#c2695c",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            Imprimir / salvar PDF
+          </button>
+          <button
+            type="button"
+            onClick={() => window.close()}
+            style={{
+              padding: "4px 12px",
+              borderRadius: 6,
+              border: "1px solid #d6d3d1",
+              background: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            Fechar
+          </button>
+        </span>
+      </div>
       <DocProvider p={data.proposta} cfg={data.config} editable={false}>
         <Documento />
       </DocProvider>

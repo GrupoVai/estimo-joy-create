@@ -8,7 +8,14 @@
 
 import type { Config, Proposta } from "./types";
 
-export type PrintPayload = { proposta: Proposta; config: Config };
+export type PrintPayload = {
+  proposta: Proposta;
+  config: Config;
+  /** quando o "Gerar PDF" foi clicado (ms) */
+  geradoEm?: number;
+  /** versão do app que gerou (src/versao.ts) */
+  versao?: string;
+};
 
 export const MSG = {
   imprimir: "coktelitas-ext-imprimir", // site (popup) -> extensão
