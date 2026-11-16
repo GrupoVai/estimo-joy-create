@@ -437,8 +437,9 @@ export function Painel({
         {calc.regime === "semAlcool" ? (
           <>
             <p className="text-[11px] text-neutral-400">
-              Página "Coquetéis ilimitados" com um único card (Opção 4 — drinks sem álcool). Não há
-              tabela: digite o valor do pacote.
+              Modelo de XV anos: página "Coquetéis ilimitados" com um único card (Opção 4 — drinks
+              sem álcool). Não há tabela: digite o valor do pacote. Os outros eventos seguem a
+              tabela mesmo sem álcool.
             </p>
             <div className="grid grid-cols-2 gap-2">
               <Campo label="Investimento do pacote (R$)">

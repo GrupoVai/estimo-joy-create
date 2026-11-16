@@ -185,17 +185,23 @@ describe("data com ano de 2 dígitos", () => {
 });
 
 describe("XV anos / drinks sem álcool", () => {
-  it("bebidas 'sem' => regime semAlcool (1 card), valor digitado, sem tabela", () => {
+  it("XV anos + 'sem álcool' => regime semAlcool (1 card), valor digitado, sem tabela", () => {
     const base = novaProposta(cfg);
-    const p = { ...base, bebidas: "sem" as const, convidados: 150, duracao: 6 };
+    const p = { ...base, evento: "XV anos", bebidas: "sem" as const, convidados: 150, duracao: 6 };
     const c = calcular(p, cfg);
     expect(c.regime).toBe("semAlcool");
+    // só o XV anos: aniversário "normal" sem álcool continua pela tabela (convidados)
+    expect(calcular({ ...p, evento: "Aniversário" }, cfg).regime).toBe("openbar");
+    expect(calcular({ ...p, evento: "Aniversário", convidados: 40 }, cfg).regime).toBe("limitado");
+    expect(calcular({ ...p, evento: "Casamento" }, cfg).avisos.some((a) => /pacote/.test(a))).toBe(
+      false,
+    );
     expect(c.pacoteSemAlcool).toBeNull();
     expect(c.avisos.some((a) => /pacote/.test(a))).toBe(true);
     const c2 = calcular({ ...p, precos: { ...p.precos, pacoteSemAlcool: 8500 } }, cfg);
     expect(c2.pacoteSemAlcool).toBe(8500);
     expect(c2.avisos).toEqual([]);
-    // 150 convidados com álcool continua open bar; regime manual vence
+    // XV anos com álcool continua pela tabela; regime manual vence
     expect(calcular({ ...p, bebidas: "com" }, cfg).regime).toBe("openbar");
     expect(calcular({ ...p, precos: { ...p.precos, regime: "limitado" } }, cfg).regime).toBe(
       "limitado",

@@ -39,9 +39,12 @@ export function regime(convidados: number | null, cfg: Config): Regime {
   return convidados !== null && convidados >= cfg.limiteOpenBar ? "openbar" : "limitado";
 }
 
-/** Regime automático da proposta: só sem álcool => página de 1 card (valor manual); senão R1. */
+/**
+ * Regime automático da proposta. SÓ a festa de XV anos (com bebidas "sem álcool") usa a página
+ * de 1 card com valor digitado; qualquer outro evento — mesmo sem álcool — segue R1 (tabela).
+ */
 export function regimeAuto(p: Proposta, cfg: Config): Regime {
-  return p.bebidas === "sem" ? "semAlcool" : regime(p.convidados, cfg);
+  return p.evento === "XV anos" && p.bebidas === "sem" ? "semAlcool" : regime(p.convidados, cfg);
 }
 
 /** Data dd/mm/aaaa ou dd/mm/aa => {dia, mes, ano} ou null. */
