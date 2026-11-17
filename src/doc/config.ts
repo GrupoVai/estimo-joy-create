@@ -249,6 +249,7 @@ export function precosAuto(): Proposta["precos"] {
   return {
     regime: null,
     pacoteSemAlcool: null,
+    pacoteSemAlcool2: null,
     faixaOpenBar: null,
     acrescimoPct: null,
     limitadoUnidades: [null, null],

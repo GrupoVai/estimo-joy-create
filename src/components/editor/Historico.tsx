@@ -157,9 +157,13 @@ export function Historico({
                           {r === "openbar"
                             ? "Opção 1: "
                             : r === "semAlcool"
-                              ? "Pacote: "
+                              ? "Pacotes: "
                               : "Op. 1 (cliente): "}
-                          <b>{brlBR(v.valores[0] ?? 0)}</b>
+                          <b>
+                            {r === "semAlcool"
+                              ? v.valores.map((x) => brlBR(x)).join(" / ")
+                              : brlBR(v.valores[0] ?? 0)}
+                          </b>
                           {p.ajuste && p.ajuste.valor !== 0 ? (
                             <span className="ml-1 text-amber-700">
                               (ajuste{" "}

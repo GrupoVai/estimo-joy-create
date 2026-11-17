@@ -69,6 +69,6 @@ export function fixtureGeorgia(): Proposta {
     bebidas: "sem",
     menuSubtitulo: subtituloDoPreset("sem"),
     menu: menuDoPreset("sem", DEFAULT_CONFIG),
-    precos: { ...base.precos, pacoteSemAlcool: 8500 },
+    precos: { ...base.precos, pacoteSemAlcool: 8500, pacoteSemAlcool2: 10500 },
   };
 }

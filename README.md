@@ -41,8 +41,8 @@ src/components/editor/  painel, editor, tabela de preços
   planilha; acréscimo 2027 por quadrimestre (5/10/15%).
 - **Limitado**: 150/200 unidades × R$16/17/18/20.
 - **XV anos**: capa própria; ao escolher, Bebidas vira "Sem álcool" (menu `presets.sem`, 8 drinks) e a
-  página 4 vira o modelo de 1 card (Opção 4 — drinks sem álcool) com o investimento do pacote
-  **digitado** (não há tabela). **Só o XV anos** usa esse modelo: os outros eventos seguem a tabela
+  página 4 vira o modelo de drinks sem álcool com **dois cards** (Opção 1 = 150 un., Opção 2 = 200 un.;
+  unidades da tabela do limitado, alteráveis) e o investimento de cada um **digitado** (não há tabela). **Só o XV anos** usa esse modelo: os outros eventos seguem a tabela
   (limitado/open bar por convidados) mesmo com menu sem álcool. Dá para forçar no painel.
 - **Por ano do evento** (tabela "Valores por ano"): seguro de taças e copos, cada quebra/extravio fora do
   seguro e R$/unidade da cafeteria — 2026: 350 / 35 / 18; 2027: 450 / 45 / 20. Vale pelo ano da data do

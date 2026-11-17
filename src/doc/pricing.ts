@@ -22,8 +22,9 @@ export interface Calculo {
   regime: Regime;
   openBar: CalculoOpenBar;
   limitado: CalculoLimitado;
-  /** investimento do pacote na página "drinks sem álcool" (digitado; null = ainda não informado) */
+  /** investimentos digitados na página "drinks sem álcool" (XV anos): card 1 (150 un.) e card 2 (200 un.) */
   pacoteSemAlcool: number | null;
+  pacoteSemAlcool2: number | null;
   /** ano do evento usado nas tabelas por ano (data vazia => ano atual) */
   ano: number;
   /** valores da tabela do ano: seguro, quebra, cafeteria */
@@ -168,13 +169,17 @@ export function calcular(p: Proposta, cfg: Config): Calculo {
   const cafeteriaTotal = p.cafeteria.pacote * cafeteriaUnitario;
   const avisos = r === "openbar" ? ob.avisos : [];
   const pacoteSemAlcool = p.precos?.pacoteSemAlcool ?? null;
-  if (r === "semAlcool" && pacoteSemAlcool === null)
-    avisos.push("Informe o investimento do pacote (drinks sem álcool) — não há tabela para ele.");
+  const pacoteSemAlcool2 = p.precos?.pacoteSemAlcool2 ?? null;
+  if (r === "semAlcool" && (pacoteSemAlcool === null || pacoteSemAlcool2 === null))
+    avisos.push(
+      "Informe o investimento dos dois cards de drinks sem álcool — não há tabela para eles.",
+    );
   return {
     regime: r,
     openBar: ob,
     limitado: lim,
     pacoteSemAlcool,
+    pacoteSemAlcool2,
     ano,
     valoresAno,
     cafeteriaUnitario,

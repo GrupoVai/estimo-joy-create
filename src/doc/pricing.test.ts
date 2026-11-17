@@ -185,21 +185,29 @@ describe("data com ano de 2 dígitos", () => {
 });
 
 describe("XV anos / drinks sem álcool", () => {
-  it("XV anos + 'sem álcool' => regime semAlcool (1 card), valor digitado, sem tabela", () => {
+  it("XV anos + 'sem álcool' => regime semAlcool (2 cards), valores digitados, sem tabela", () => {
     const base = novaProposta(cfg);
     const p = { ...base, evento: "XV anos", bebidas: "sem" as const, convidados: 150, duracao: 6 };
     const c = calcular(p, cfg);
     expect(c.regime).toBe("semAlcool");
+    expect(c.pacoteSemAlcool2).toBeNull();
+    expect(c.limitado.unidades).toEqual([150, 200]); // unidades dos dois cards
     // só o XV anos: aniversário "normal" sem álcool continua pela tabela (convidados)
     expect(calcular({ ...p, evento: "Aniversário" }, cfg).regime).toBe("openbar");
     expect(calcular({ ...p, evento: "Aniversário", convidados: 40 }, cfg).regime).toBe("limitado");
-    expect(calcular({ ...p, evento: "Casamento" }, cfg).avisos.some((a) => /pacote/.test(a))).toBe(
+    expect(calcular({ ...p, evento: "Casamento" }, cfg).avisos.some((a) => /dois cards/.test(a))).toBe(
       false,
     );
     expect(c.pacoteSemAlcool).toBeNull();
-    expect(c.avisos.some((a) => /pacote/.test(a))).toBe(true);
-    const c2 = calcular({ ...p, precos: { ...p.precos, pacoteSemAlcool: 8500 } }, cfg);
+    expect(c.avisos.some((a) => /dois cards/.test(a))).toBe(true);
+    const c1 = calcular({ ...p, precos: { ...p.precos, pacoteSemAlcool: 8500 } }, cfg);
+    expect(c1.avisos.some((a) => /dois cards/.test(a))).toBe(true); // falta o 2º
+    const c2 = calcular(
+      { ...p, precos: { ...p.precos, pacoteSemAlcool: 8500, pacoteSemAlcool2: 10500 } },
+      cfg,
+    );
     expect(c2.pacoteSemAlcool).toBe(8500);
+    expect(c2.pacoteSemAlcool2).toBe(10500);
     expect(c2.avisos).toEqual([]);
     // XV anos com álcool continua pela tabela; regime manual vence
     expect(calcular({ ...p, bebidas: "com" }, cfg).regime).toBe("openbar");

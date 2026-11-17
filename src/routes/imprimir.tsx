@@ -120,7 +120,7 @@ function Imprimir() {
   const calc = calcular(data.proposta, data.config);
   const regimeTxt =
     calc.regime === "semAlcool"
-      ? "drinks sem álcool (1 card, valor digitado)"
+      ? "drinks sem álcool (2 cards, valores digitados)"
       : calc.regime === "openbar"
         ? "open bar (4 opções)"
         : "coquetéis limitados";

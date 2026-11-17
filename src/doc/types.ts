@@ -29,8 +29,10 @@ export interface Ajuste {
 export interface PrecosManuais {
   /** força o regime da página 4 (null = automático: sem álcool => 1 card; senão pelo nº de convidados) */
   regime: "limitado" | "openbar" | "semAlcool" | null;
-  /** página 4 "drinks sem álcool": investimento do pacote, digitado à mão (sem tabela) */
+  /** página 4 "drinks sem álcool" (XV anos): investimento digitado à mão, card 1 (150 un.) */
   pacoteSemAlcool: number | null;
+  /** idem, card 2 (200 un.) */
+  pacoteSemAlcool2: number | null;
   /** aba da planilha (convidados) usada no open bar */
   faixaOpenBar: number | null;
   /** acréscimo % sobre a base 2026 */

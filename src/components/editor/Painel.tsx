@@ -437,27 +437,52 @@ export function Painel({
         {calc.regime === "semAlcool" ? (
           <>
             <p className="text-[11px] text-neutral-400">
-              Modelo de XV anos: página "Coquetéis ilimitados" com um único card (Opção 4 — drinks
-              sem álcool). Não há tabela: digite o valor do pacote. Os outros eventos seguem a
+              Modelo de XV anos: página "Coquetéis ilimitados" com dois cards de drinks sem álcool
+              (Opção 1 = {calc.limitado.unidades[0]} un., Opção 2 = {calc.limitado.unidades[1]}{" "}
+              un.). Não há tabela: digite o investimento de cada um. Os outros eventos seguem a
               tabela mesmo sem álcool.
             </p>
             <div className="grid grid-cols-2 gap-2">
-              <Campo label="Investimento do pacote (R$)">
-                <Input
-                  type="number"
-                  step="50"
-                  min={0}
-                  className={`h-8 text-xs tabular-nums ${calc.pacoteSemAlcool === null ? "border-amber-400" : ""}`}
-                  value={precos.pacoteSemAlcool ?? ""}
-                  placeholder="Ex.: 8500"
-                  onChange={(e) => {
-                    const n = parseFloat(e.target.value);
-                    setPrecos({
-                      pacoteSemAlcool: e.target.value === "" || !Number.isFinite(n) ? null : n,
-                    });
-                  }}
-                />
-              </Campo>
+              {([0, 1] as const).map((i) => {
+                const chave = i === 0 ? "pacoteSemAlcool" : "pacoteSemAlcool2";
+                const valor = precos[chave];
+                return (
+                  <div key={i} className="space-y-2 rounded-md border border-neutral-200 p-2">
+                    <Campo label={`Opção ${i + 1} — unidades`}>
+                      <NumAuto
+                        value={precos.limitadoUnidades[i]}
+                        auto={cfg.limitado.unidades[i]}
+                        min={1}
+                        onChange={(v) => {
+                          const u = [
+                            ...precos.limitadoUnidades,
+                          ] as PrecosManuais["limitadoUnidades"];
+                          u[i] = v;
+                          setPrecos({ limitadoUnidades: u });
+                        }}
+                      />
+                    </Campo>
+                    <Campo label="Investimento (R$)">
+                      <Input
+                        type="number"
+                        step="50"
+                        min={0}
+                        className={`h-8 text-xs tabular-nums ${valor === null ? "border-amber-400" : ""}`}
+                        value={valor ?? ""}
+                        placeholder={i === 0 ? "Ex.: 8500" : "Ex.: 10500"}
+                        onChange={(e) => {
+                          const n = parseFloat(e.target.value);
+                          setPrecos({
+                            [chave]: e.target.value === "" || !Number.isFinite(n) ? null : n,
+                          });
+                        }}
+                      />
+                    </Campo>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <Campo label="Horas (subtítulo)">
                 <Input
                   type="number"
