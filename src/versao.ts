@@ -3,6 +3,8 @@
 export const APP_VERSAO = "v4.4";
 export const APP_DATA = "17/11/2026";
 export const APP_NOVIDADES = [
+  "v4.4 (17/11/2026): XV anos com dois cards (Opção 1 = 150 un., Opção 2 = 200 un.), cada um com investimento digitado.",
+  "v4.3 (16/11/2026): Gerar PDF reaproveita a mesma janela de impressão e a página de impressão mostra uma faixa com cliente, evento e tipo da página 4.",
   'v4.2 (16/11/2026): card do XV anos mostra só "OPÇÃO", sem o número 4.',
   "v4.1 (16/11/2026): a página de 1 card com valor digitado vale só para XV anos; os outros eventos seguem a tabela mesmo sem álcool.",
   "v4 (13/11/2026): evento XV anos (capa própria), menu 'Coquetéis sem álcool' com 8 drinks e página 4 de 1 card com valor digitado.",
