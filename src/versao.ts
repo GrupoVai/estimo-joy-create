@@ -1,8 +1,9 @@
 // Carimbo de versão mostrado no cabeçalho — serve para conferir se o app publicado está atualizado.
 // Ao fazer uma mudança visível, suba o número e a data e descreva em uma linha.
-export const APP_VERSAO = "v4.4";
-export const APP_DATA = "17/11/2026";
+export const APP_VERSAO = "v4.5";
+export const APP_DATA = "18/11/2026";
 export const APP_NOVIDADES = [
+  'v4.5 (18/11/2026): menu "Sem álcool" leva à página de dois cards com valor digitado em qualquer evento (não só XV anos); aviso quando o regime da página 4 está fixado à mão.',
   "v4.4 (17/11/2026): XV anos com dois cards (Opção 1 = 150 un., Opção 2 = 200 un.), cada um com investimento digitado.",
   "v4.3 (16/11/2026): Gerar PDF reaproveita a mesma janela de impressão e a página de impressão mostra uma faixa com cliente, evento e tipo da página 4.",
   'v4.2 (16/11/2026): card do XV anos mostra só "OPÇÃO", sem o número 4.',

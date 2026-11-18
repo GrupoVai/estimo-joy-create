@@ -41,11 +41,11 @@ export function regime(convidados: number | null, cfg: Config): Regime {
 }
 
 /**
- * Regime automático da proposta. SÓ a festa de XV anos (com bebidas "sem álcool") usa a página
- * de 1 card com valor digitado; qualquer outro evento — mesmo sem álcool — segue R1 (tabela).
+ * Regime automático da proposta: menu "Sem álcool" (qualquer evento) => página de drinks sem
+ * álcool com dois cards (150/200 un.) e valores digitados; senão R1 (tabela por convidados).
  */
 export function regimeAuto(p: Proposta, cfg: Config): Regime {
-  return p.evento === "XV anos" && p.bebidas === "sem" ? "semAlcool" : regime(p.convidados, cfg);
+  return p.bebidas === "sem" ? "semAlcool" : regime(p.convidados, cfg);
 }
 
 /** Data dd/mm/aaaa ou dd/mm/aa => {dia, mes, ano} ou null. */

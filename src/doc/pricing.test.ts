@@ -192,12 +192,16 @@ describe("XV anos / drinks sem álcool", () => {
     expect(c.regime).toBe("semAlcool");
     expect(c.pacoteSemAlcool2).toBeNull();
     expect(c.limitado.unidades).toEqual([150, 200]); // unidades dos dois cards
-    // só o XV anos: aniversário "normal" sem álcool continua pela tabela (convidados)
-    expect(calcular({ ...p, evento: "Aniversário" }, cfg).regime).toBe("openbar");
-    expect(calcular({ ...p, evento: "Aniversário", convidados: 40 }, cfg).regime).toBe("limitado");
-    expect(calcular({ ...p, evento: "Casamento" }, cfg).avisos.some((a) => /dois cards/.test(a))).toBe(
-      false,
+    // vale para qualquer evento com menu sem álcool (casamento, aniversário…)
+    expect(calcular({ ...p, evento: "Casamento" }, cfg).regime).toBe("semAlcool");
+    expect(calcular({ ...p, evento: "Aniversário", convidados: 40 }, cfg).regime).toBe("semAlcool");
+    // com álcool ou "com e sem" segue a tabela por convidados
+    expect(calcular({ ...p, evento: "Casamento", bebidas: "com_e_sem" }, cfg).regime).toBe(
+      "openbar",
     );
+    expect(
+      calcular({ ...p, evento: "Aniversário", bebidas: "com", convidados: 40 }, cfg).regime,
+    ).toBe("limitado");
     expect(c.pacoteSemAlcool).toBeNull();
     expect(c.avisos.some((a) => /dois cards/.test(a))).toBe(true);
     const c1 = calcular({ ...p, precos: { ...p.precos, pacoteSemAlcool: 8500 } }, cfg);
@@ -209,7 +213,7 @@ describe("XV anos / drinks sem álcool", () => {
     expect(c2.pacoteSemAlcool).toBe(8500);
     expect(c2.pacoteSemAlcool2).toBe(10500);
     expect(c2.avisos).toEqual([]);
-    // XV anos com álcool continua pela tabela; regime manual vence
+    // com álcool continua pela tabela; regime manual vence
     expect(calcular({ ...p, bebidas: "com" }, cfg).regime).toBe("openbar");
     expect(calcular({ ...p, precos: { ...p.precos, regime: "limitado" } }, cfg).regime).toBe(
       "limitado",

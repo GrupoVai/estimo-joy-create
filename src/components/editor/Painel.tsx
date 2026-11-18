@@ -423,24 +423,35 @@ export function Painel({
             <option value="">
               Automático —{" "}
               {regimeAuto === "semAlcool"
-                ? "Drinks sem álcool (1 card, valor digitado)"
+                ? "Drinks sem álcool (2 cards, valores digitados)"
                 : regimeAuto === "openbar"
                   ? `Open bar (≥ ${cfg.limiteOpenBar} convidados)`
                   : `Coquetéis limitados (< ${cfg.limiteOpenBar})`}
             </option>
             <option value="openbar">Open bar (coquetéis ilimitados)</option>
             <option value="limitado">Coquetéis limitados</option>
-            <option value="semAlcool">Drinks sem álcool (1 card, valor digitado)</option>
+            <option value="semAlcool">Drinks sem álcool (2 cards, valores digitados)</option>
           </select>
+          {precos.regime !== null ? (
+            <p className="mt-1 text-[11px] text-amber-700">
+              Regime fixado à mão — o menu de bebidas e o nº de convidados não mudam a página 4.{" "}
+              <button
+                type="button"
+                className="underline underline-offset-2"
+                onClick={() => setPrecos({ regime: null })}
+              >
+                Voltar ao automático
+              </button>
+            </p>
+          ) : null}
         </Campo>
 
         {calc.regime === "semAlcool" ? (
           <>
             <p className="text-[11px] text-neutral-400">
-              Modelo de XV anos: página "Coquetéis ilimitados" com dois cards de drinks sem álcool
-              (Opção 1 = {calc.limitado.unidades[0]} un., Opção 2 = {calc.limitado.unidades[1]}{" "}
-              un.). Não há tabela: digite o investimento de cada um. Os outros eventos seguem a
-              tabela mesmo sem álcool.
+              Menu "Sem álcool": página 4 com dois cards de drinks sem álcool (Opção 1 ={" "}
+              {calc.limitado.unidades[0]} un., Opção 2 = {calc.limitado.unidades[1]} un.). Não há
+              tabela: digite o investimento de cada um.
             </p>
             <div className="grid grid-cols-2 gap-2">
               {([0, 1] as const).map((i) => {
